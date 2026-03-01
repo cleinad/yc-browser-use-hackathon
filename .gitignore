@@ -52,3 +52,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Claude
+.claude/
+.planning/
+SPONSORS.md
+MEGAPLAN.md
