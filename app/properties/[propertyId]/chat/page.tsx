@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { motion } from "framer-motion";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useQuoteSession } from "@/app/chat/useQuoteSession";
+import { computeCumulativeRealizedSavings } from "@/app/lib/savings";
 import MessageList from "@/app/components/MessageList";
 import ChatInput from "@/app/components/ChatInput";
 import OrderHistory from "@/app/components/OrderHistory";
@@ -35,6 +36,14 @@ function readStoredChatCutoff(propertyId: string): number | null {
   }
   const parsed = Number(raw);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
 }
 
 function PropertyTabBar({
@@ -101,9 +110,20 @@ export default function PropertyChatPage() {
       ? (chatSinceByProperty[propertyId] ?? null)
       : readStoredChatCutoff(propertyId)
     : null;
-  const { messages, loading, submit, timelineLoaded } = useQuoteSession(
+  const {
+    messages,
+    loading,
+    submit,
+    timelineLoaded,
+    decisionMode,
+    setLocalDecision,
+  } = useQuoteSession(
     sessionPropertyId,
     { sinceTs: chatSinceTs },
+  );
+  const cumulativeSavings = useMemo(
+    () => computeCumulativeRealizedSavings(messages),
+    [messages],
   );
   const isEmpty = timelineLoaded && messages.length === 0;
   const isArchived = !!property?.isArchived;
@@ -187,6 +207,12 @@ export default function PropertyChatPage() {
         <div className="flex flex-col items-center justify-start mx-auto w-full max-w-4xl">
           {activeTab === "chat" && (
             <div className="mb-3 flex w-full items-center justify-end gap-2">
+              <div className="mr-auto rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-1.5 text-xs text-[var(--fg-muted)]">
+                Cumulative savings:{" "}
+                <span className="font-medium text-[var(--fg-base)] tabular-nums">
+                  {formatCurrency(cumulativeSavings)}
+                </span>
+              </div>
               {chatSinceTs !== null && (
                 <button
                   type="button"
@@ -232,7 +258,16 @@ export default function PropertyChatPage() {
           ) : (
             <div className="w-full flex-1 min-h-0 flex flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
               <div className="flex-1 min-h-0 overflow-hidden">
-                <MessageList messages={messages} />
+                <MessageList
+                  messages={messages}
+                  onLocalDecisionChange={
+                    decisionMode === "local"
+                      ? async (requestId, decision, optionRank) => {
+                          setLocalDecision(requestId, decision, optionRank);
+                        }
+                      : undefined
+                  }
+                />
               </div>
               <div className="border-t border-[var(--border-default)] bg-[var(--bg-surface)]">
                 <ChatInput onSubmit={submit} disabled={loading || isArchived} />

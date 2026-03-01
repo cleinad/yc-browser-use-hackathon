@@ -17,9 +17,24 @@ import { useComparisonData } from "./checkout/useComparisonData";
 
 interface MessageListProps {
   messages: ChatMessage[];
+  onLocalDecisionChange?: (
+    requestId: string,
+    decision: OrderDecision,
+    optionRank?: number,
+  ) => Promise<void> | void;
 }
 
-function AgentMessageBlock({ msg }: { msg: AgentMessage }) {
+function AgentMessageBlock({
+  msg,
+  onLocalDecisionChange,
+}: {
+  msg: AgentMessage;
+  onLocalDecisionChange?: (
+    requestId: string,
+    decision: OrderDecision,
+    optionRank?: number,
+  ) => Promise<void> | void;
+}) {
   const orchestratorState = useOrchestratorState(
     msg.events,
     msg.done,
@@ -33,6 +48,11 @@ function AgentMessageBlock({ msg }: { msg: AgentMessage }) {
   const [showComparison, setShowComparison] = useState(false);
 
   const handleDecisionChange = async (decision: OrderDecision, optionRank?: number) => {
+    if (onLocalDecisionChange && msg.requestId) {
+      await onLocalDecisionChange(msg.requestId, decision, optionRank);
+      return;
+    }
+
     if (!msg.requestId) return;
     try {
       await setDecision({
@@ -113,7 +133,10 @@ function AgentMessageBlock({ msg }: { msg: AgentMessage }) {
   );
 }
 
-export default function MessageList({ messages }: MessageListProps) {
+export default function MessageList({
+  messages,
+  onLocalDecisionChange,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -143,7 +166,13 @@ export default function MessageList({ messages }: MessageListProps) {
           );
         }
 
-        return <AgentMessageBlock key={i} msg={msg} />;
+        return (
+          <AgentMessageBlock
+            key={i}
+            msg={msg}
+            onLocalDecisionChange={onLocalDecisionChange}
+          />
+        );
       })}
       <div ref={bottomRef} />
     </div>

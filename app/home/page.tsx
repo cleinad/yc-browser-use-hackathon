@@ -400,6 +400,16 @@ export default function DashboardPage() {
             <div className="hidden sm:block w-px h-8 bg-[var(--border-default)]" />
 
             <div className="flex flex-col">
+              <span className="flex items-center gap-1 text-[11px] text-[var(--accent-primary)] leading-none">
+                <MoneyIcon />
+                Cumulative savings
+              </span>
+              <span className="mt-1 text-lg font-semibold text-[var(--fg-base)] tabular-nums leading-none">
+                {formatCurrency(metrics?.cumulativeRealizedSavings ?? 0)}
+              </span>
+            </div>
+
+            <div className="flex flex-col">
               <span className="flex items-center gap-1 text-[11px] text-[var(--accent-jade)] leading-none">
                 <MoneyIcon />
                 Savings (7d)

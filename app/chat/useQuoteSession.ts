@@ -46,6 +46,8 @@ type DirectTurn = {
   error: string | null;
   done: boolean;
   createdAt: number;
+  decision: OrderDecision;
+  acceptedOptionRank: number | null;
 };
 
 function toErrorMessage(error: unknown): string {
@@ -120,6 +122,13 @@ function parseStoredAgentEventEntry(value: unknown): AgentEventEntry | null {
   return null;
 }
 
+function parseStoredDecision(value: unknown): OrderDecision {
+  if (value === "accepted" || value === "rejected" || value === "pending") {
+    return value;
+  }
+  return "pending";
+}
+
 function parseStoredDirectTurns(raw: string | null): DirectTurn[] {
   if (!raw) {
     return [];
@@ -155,6 +164,11 @@ function parseStoredDirectTurns(raw: string | null): DirectTurn[] {
           typeof turn.createdAt === "number" && Number.isFinite(turn.createdAt)
             ? turn.createdAt
             : 0,
+        decision: parseStoredDecision(turn.decision),
+        acceptedOptionRank:
+          typeof turn.acceptedOptionRank === "number"
+            ? turn.acceptedOptionRank
+            : null,
       });
     }
 
@@ -334,6 +348,9 @@ export function useQuoteSession(
         plan: turn.plan,
         error: turn.error,
         done: turn.done,
+        requestId: turn.id,
+        decision: turn.decision,
+        acceptedOptionRank: turn.acceptedOptionRank,
       });
     }
 
@@ -385,6 +402,8 @@ export function useQuoteSession(
             error: null,
             done: false,
             createdAt: Date.now(),
+            decision: "pending",
+            acceptedOptionRank: null,
           },
         ]);
 
@@ -528,7 +547,32 @@ export function useQuoteSession(
     [createQuote, directMode, loading, propertyId, updateDirectTurn],
   );
 
+  const setLocalDecision = useCallback(
+    (turnId: string, decision: OrderDecision, optionRank?: number) => {
+      if (!directMode) {
+        return;
+      }
+
+      updateDirectTurn(turnId, (turn) => ({
+        ...turn,
+        decision,
+        acceptedOptionRank:
+          decision === "pending" || typeof optionRank !== "number"
+            ? null
+            : optionRank,
+      }));
+    },
+    [directMode, updateDirectTurn],
+  );
+
   const timelineLoaded = directMode || timeline !== undefined;
 
-  return { messages, loading, submit, timelineLoaded };
+  return {
+    messages,
+    loading,
+    submit,
+    timelineLoaded,
+    decisionMode: directMode ? "local" : "remote",
+    setLocalDecision,
+  };
 }

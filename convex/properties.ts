@@ -73,6 +73,7 @@ type ParsedResultMetrics = {
   baselineTotal: number;
   lineItemCount: number;
   retailerCount: number;
+  optionTotalsByRank: Map<number, number>;
 };
 
 function parseResultMetrics(payload: string | undefined): ParsedResultMetrics | null {
@@ -97,6 +98,7 @@ function parseResultMetrics(payload: string | undefined): ParsedResultMetrics | 
   }
 
   const numericTotals: number[] = [];
+  const optionTotalsByRank = new Map<number, number>();
   let bestOptionLineItemCount = 0;
   let bestOptionTotal = Number.POSITIVE_INFINITY;
   const retailers = new Set<string>();
@@ -113,6 +115,11 @@ function parseResultMetrics(payload: string | undefined): ParsedResultMetrics | 
         : null;
     if (totalNumber !== null) {
       numericTotals.push(totalNumber);
+
+      const optionRank = (option as { rank?: unknown }).rank;
+      if (typeof optionRank === "number" && Number.isFinite(optionRank)) {
+        optionTotalsByRank.set(optionRank, totalNumber);
+      }
     }
 
     const lineItems = (option as { line_items?: unknown }).line_items;
@@ -148,6 +155,7 @@ function parseResultMetrics(payload: string | undefined): ParsedResultMetrics | 
     baselineTotal,
     lineItemCount: bestOptionLineItemCount,
     retailerCount,
+    optionTotalsByRank,
   };
 }
 
@@ -211,6 +219,8 @@ export const dashboard = query({
           weeklyPotentialSavings: 0,
           weeklyEstimatedTimeSavedMinutes: 0,
           weeklyEvaluatedRequests: 0,
+          cumulativeRealizedSavings: 0,
+          cumulativeAcceptedDecisions: 0,
         },
       };
     }
@@ -359,6 +369,52 @@ export const dashboard = query({
       weeklyEstimatedTimeSavedMinutes += row.timeSavedMinutes;
     }
 
+    const acceptedRows = await Promise.all(
+      quoteRequests
+        .filter(
+          (request) =>
+            request.status === "succeeded" &&
+            request.decision === "accepted" &&
+            typeof request.acceptedOptionRank === "number",
+        )
+        .map(async (request) => {
+          const latest = await ctx.db
+            .query("quoteEvents")
+            .withIndex("by_request_seq", (q) => q.eq("requestId", request._id))
+            .order("desc")
+            .take(1);
+
+          const resultEvent = latest[0];
+          if (!resultEvent || resultEvent.eventType !== "result") {
+            return null;
+          }
+
+          const resultMetrics = parseResultMetrics(resultEvent.message);
+          if (!resultMetrics) {
+            return null;
+          }
+
+          const acceptedTotal = resultMetrics.optionTotalsByRank.get(
+            request.acceptedOptionRank as number,
+          );
+          if (acceptedTotal === undefined) {
+            return null;
+          }
+
+          return Math.max(0, resultMetrics.baselineTotal - acceptedTotal);
+        }),
+    );
+
+    let cumulativeRealizedSavings = 0;
+    let cumulativeAcceptedDecisions = 0;
+    for (const row of acceptedRows) {
+      if (row === null) {
+        continue;
+      }
+      cumulativeAcceptedDecisions += 1;
+      cumulativeRealizedSavings += row;
+    }
+
     const propertyList = Array.from(propertyStats.values());
     const activeProperties = propertyList.filter((property) => !property.isArchived).length;
     const archivedProperties = propertyList.length - activeProperties;
@@ -378,6 +434,8 @@ export const dashboard = query({
         weeklyPotentialSavings,
         weeklyEstimatedTimeSavedMinutes,
         weeklyEvaluatedRequests,
+        cumulativeRealizedSavings,
+        cumulativeAcceptedDecisions,
       },
     };
   },
