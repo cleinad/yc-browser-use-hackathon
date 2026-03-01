@@ -208,7 +208,7 @@ function PropertyFormModal({
             <button
               type="submit"
               disabled={busy}
-              className="rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] disabled:opacity-60"
+              className="rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] disabled:opacity-60 shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.06)]"
             >
               {busy ? "Saving..." : submitLabel}
             </button>
@@ -319,9 +319,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      <header className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-8">
+      <header className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-8 border-b border-[var(--border-default)] shadow-[0_2px_10px_rgba(0,0,0,0.06)]">
         <Link href="/home" className="flex items-center gap-2">
-          <span className="text-lg font-semibold tracking-tight text-[var(--fg-base)]">
+          <span className="text-lg font-semibold tracking-tight text-[var(--fg-base)] drop-shadow-[0_1px_0_rgba(0,0,0,0.08)]">
             Proquote
           </span>
         </Link>
@@ -337,7 +337,7 @@ export default function DashboardPage() {
         {/* --- Header row --- */}
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-[var(--fg-base)]">
+            <h1 className="text-xl font-semibold tracking-tight text-[var(--fg-base)] drop-shadow-[0_1px_0_rgba(0,0,0,0.06)]">
               Properties
             </h1>
             <p className="mt-0.5 text-sm text-[var(--fg-muted)]">
@@ -347,14 +347,14 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setCreateModalOpen(true)}
-            className="shrink-0 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
+            className="shrink-0 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] shadow-[0_3px_10px_rgba(0,0,0,0.14),0_1px_2px_rgba(0,0,0,0.08)]"
           >
             New property
           </button>
         </div>
 
         {/* --- Stats bar --- */}
-        <div className="mt-5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 py-4">
+        <div className="mt-5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.05)]">
           <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
             <StatCell label="Active" value={metrics?.activeProperties ?? 0} />
             <StatCell label="Archived" value={metrics?.archivedProperties ?? 0} />
@@ -425,7 +425,7 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setCreateModalOpen(true)}
-                className="mt-3 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
+                className="mt-3 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.06)]"
               >
                 Create property
               </button>
@@ -435,7 +435,7 @@ export default function DashboardPage() {
               {visibleProperties.map((property) => (
                 <article
                   key={property._id}
-                  className="group relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 transition hover:border-[var(--fg-disabled)]"
+                  className="group relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition hover:border-[var(--fg-disabled)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
                 >
                   {/* Top accent bar */}
                   <div
@@ -503,7 +503,7 @@ export default function DashboardPage() {
                     {!property.isArchived && (
                       <Link
                         href={`/properties/${property._id}/chat`}
-                        className="rounded-lg bg-[var(--accent-primary)] px-3 py-1 text-xs font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
+                        className="rounded-lg bg-[var(--accent-primary)] px-3 py-1 text-xs font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
                       >
                         Open chat
                       </Link>

@@ -74,7 +74,7 @@ export default function PropertyChatPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
-      <header className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-8">
+      <header className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-8 border-b border-[var(--border-default)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-3">
           <Link href="/home" className="flex items-center gap-2">
             <span className="text-lg font-semibold tracking-tight text-[var(--fg-base)]">

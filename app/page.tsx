@@ -18,7 +18,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 pb-24">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--fg-disabled)] mb-6">
+        <p className="text-xs font-medium text-[var(--fg-disabled)] mb-6">
           Procurement Workspace
         </p>
 

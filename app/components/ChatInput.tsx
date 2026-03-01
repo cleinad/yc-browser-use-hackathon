@@ -7,13 +7,6 @@ interface ChatInputProps {
   disabled: boolean;
 }
 
-const SUGGESTIONS = [
-  { label: "Get a quote", example: "I need a quote for 12x M4 stainless socket head cap screws, delivery in 5 days." },
-  { label: "Compare vendors", example: "Compare prices for toilet seat and hinge kit across vendors, lowest total." },
-  { label: "Find parts", example: "Find toilet seat round white and mounting hardware for bathroom repair." },
-  { label: "More", example: "" },
-];
-
 function PlusIcon({ className }: { className?: string }) {
   return (
     <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -91,23 +84,6 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
         >
           <ArrowUpIcon />
         </button>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-        {SUGGESTIONS.slice(0, 3).map((s) => (
-          <button
-            key={s.label}
-            type="button"
-            onClick={() => s.example && submit(s.example)}
-            disabled={disabled || !s.example}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--bg-base)] px-4 py-2 text-sm text-[var(--fg-base)] hover:bg-[var(--bg-subtle)] hover:border-[var(--fg-muted)] transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {s.label}
-          </button>
-        ))}
-        <span className="rounded-full border border-[var(--border-default)] bg-[var(--bg-base)] px-4 py-2 text-sm text-[var(--fg-muted)]">
-          More
-        </span>
       </div>
     </div>
   );
