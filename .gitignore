@@ -24,7 +24,12 @@ env/
 # Local environment files
 .env
 .env.*
+.env.local
+.env*.local
 !.env.example
+
+# Convex generated files
+convex/_generated/
 
 # Runtime output
 *.log
