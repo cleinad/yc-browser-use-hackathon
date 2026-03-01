@@ -8,7 +8,7 @@ import re
 
 from openai import AsyncOpenAI
 
-DEFAULT_MODEL = "MiniMax-M1"
+DEFAULT_MODEL = "MiniMax-M2.5-highspeed"
 BASE_URL = "https://api.minimax.io/v1"
 
 

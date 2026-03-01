@@ -54,7 +54,7 @@ async def run_job(
     success = False
 
     with tempfile.TemporaryDirectory(prefix=f"proquote-worker-{job['job_id']}-") as user_data_dir:
-        llm = ChatBrowserUse(model="gpt-4o-mini")
+        llm = ChatBrowserUse(model="bu-latest")
         browser_profile = BrowserProfile(
             headless=headless,
             user_data_dir=user_data_dir,

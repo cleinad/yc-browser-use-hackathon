@@ -9,6 +9,7 @@ from .models import OrchestratorConfig, StatusEvent
 from .optimizer import optimize
 from .parser import parse_request
 from .process_orchestrator import ProcessSubAgentOrchestrator
+from .query_optimizer import optimize_queries
 from .schemas import PurchasePlan, UserRequest
 
 StatusHandler = Callable[[StatusEvent], Awaitable[None] | None]
@@ -45,9 +46,25 @@ async def run(
     if request.deadline:
         _log(f"  Deadline: {request.deadline}")
 
+    # Step 1.5: Optimize queries per retailer
+    _log("\nOptimizing search queries per retailer...")
+    optimized = await optimize_queries(request.parts, retailers)
+    if optimized:
+        for retailer, part_map in optimized.items():
+            for part_name, rq in part_map.items():
+                hint = f" [{rq.category_hint}]" if rq.category_hint else ""
+                _log(f"  {retailer} / {part_name}: {rq.query}{hint}")
+    else:
+        _log("  (using generic queries — optimizer returned no results)")
+
     # Step 2: Build jobs
     _log(f"\nBuilding search jobs for {len(retailers)} retailer(s)...")
-    jobs = build_jobs(request.parts, retailers=retailers, location=request.location)
+    jobs = build_jobs(
+        request.parts,
+        retailers=retailers,
+        location=request.location,
+        optimized_queries=optimized,
+    )
     _log(f"Generated {len(jobs)} search job(s)")
 
     # Step 3: Dispatch
