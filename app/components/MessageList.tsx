@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import type { ChatMessage } from "../types";
-import StatusFeed from "./StatusFeed";
-import PurchasePlanCard from "./PurchasePlanCard";
+import AgentCardGrid from "./AgentCardGrid";
 
 interface MessageListProps {
   messages: ChatMessage[];
+  onOpenPanel?: () => void;
 }
 
-export default function MessageList({ messages }: MessageListProps) {
+export default function MessageList({ messages, onOpenPanel }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function MessageList({ messages }: MessageListProps) {
         // Agent message
         return (
           <div key={i} className="max-w-full space-y-3">
-            <StatusFeed events={msg.events} />
+            <AgentCardGrid events={msg.events} />
 
             {msg.error && (
               <div className="rounded-lg border border-[var(--accent-destructive)] bg-[var(--bg-surface)] p-3 text-sm text-[var(--accent-destructive)]">
@@ -50,7 +50,26 @@ export default function MessageList({ messages }: MessageListProps) {
               </div>
             )}
 
-            {msg.plan && <PurchasePlanCard plan={msg.plan} />}
+            {msg.plan && (
+              <button
+                onClick={onOpenPanel}
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent-jade)] bg-[rgba(111,162,135,0.1)] px-4 py-2.5 text-sm font-medium text-[var(--accent-jade)] hover:bg-[rgba(111,162,135,0.2)] transition"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+                View Purchase Plan
+              </button>
+            )}
 
             {!msg.done && !msg.error && (
               <div className="flex items-center gap-2 text-xs text-[var(--fg-muted)]">

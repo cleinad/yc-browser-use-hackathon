@@ -52,3 +52,12 @@ body {
 ::selection {
   background: color-mix(in srgb, var(--accent-amber) 28%, transparent);
 }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+  background-size: 200% 100%;
+}

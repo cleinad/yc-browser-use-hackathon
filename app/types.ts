@@ -79,3 +79,55 @@ export function isPurchasePlan(value: unknown): value is PurchasePlan {
   if (!value || typeof value !== "object") return false;
   return Array.isArray((value as { options?: unknown }).options);
 }
+
+// --- Agent card types ---
+
+export type AgentCardStatus = "searching" | "completed" | "failed" | "retrying";
+
+export interface AgentCardState {
+  jobId: string;
+  retailer: string;
+  searchQuery: string;
+  status: AgentCardStatus;
+  attempt: number;
+  message: string | null;
+}
+
+export type CheckoutStrategy = "fastest" | "cheapest";
+
+export interface ComparisonCell {
+  retailer: string;
+  price: number | null;
+  currency: string;
+  availability: string | null;
+  delivery_estimate: string | null;
+  product_url: string | null;
+  product_name: string;
+}
+
+export interface ComparisonRow {
+  partName: string;
+  cells: Map<string, ComparisonCell>;
+}
+
+export interface ComparisonTable {
+  rows: ComparisonRow[];
+  retailers: string[];
+  selectedRetailers: Map<string, string>; // partName -> retailer
+  retailerTotals: Map<string, number>;
+}
+
+/** Splits "homedepot.com — toilet seat" into { retailer, query }. */
+export function parseJobLabel(label: string): {
+  retailer: string;
+  query: string;
+} {
+  const sep = label.indexOf(" — ");
+  if (sep === -1) {
+    return { retailer: label, query: "" };
+  }
+  return {
+    retailer: label.slice(0, sep).trim(),
+    query: label.slice(sep + 3).trim(),
+  };
+}
