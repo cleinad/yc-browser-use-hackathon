@@ -85,6 +85,56 @@ Returns a `PurchasePlan` JSON (see below).
 
 ---
 
+## POST /workers
+
+Start an async worker search. Poll results via SSE at `/workers/{request_id}/events`.
+
+### Request
+
+```json
+{
+  "text": "string (required) — natural-language description of the job needed"
+}
+```
+
+### Response
+
+```json
+{
+  "request_id": "string — 12-char hex ID"
+}
+```
+
+---
+
+## GET /workers/{request_id}/events
+
+SSE stream of events for an in-progress worker search.
+
+### Event types
+
+#### `status`
+
+Same shape as quote status events (see StatusEvent below).
+
+#### `log`
+
+```
+data: "plain string message"
+```
+
+#### `result`
+
+Data is a `WorkerSearchResult` JSON (see shape below).
+
+#### `error`
+
+```
+data: "error message string"
+```
+
+---
+
 ## JSON Shapes
 
 ### QuoteRequest
@@ -153,5 +203,43 @@ Returns a `PurchasePlan` JSON (see below).
   "product_url": "string | null",
   "image_url": "string | null",
   "retailer": "string | null"
+}
+```
+
+### WorkerRequest
+
+```json
+{
+  "text": "string"
+}
+```
+
+### WorkerResponse
+
+```json
+{
+  "request_id": "string"
+}
+```
+
+### WorkerSearchResult
+
+```json
+{
+  "workers": [WorkerResult],
+  "trade": "plumbing | electrical | hvac | general_handyman | roofing | painting | carpentry | appliance_repair | landscaping | cleaning",
+  "notes": "string | null"
+}
+```
+
+### WorkerResult
+
+```json
+{
+  "name": "string",
+  "phone": "string | null",
+  "address": "string | null",
+  "rating": 4.5 | null,
+  "trade_category": "string — same trade categories as above"
 }
 ```
