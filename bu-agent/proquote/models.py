@@ -17,7 +17,7 @@ StatusEventType = Literal[
 @dataclass(slots=True)
 class OrchestratorConfig:
     max_subagents: int = 5
-    per_agent_timeout_sec: int = 180
+    per_agent_timeout_sec: int = 90
     max_steps: int = 40
     retries: int = 1
     use_vision: bool = False

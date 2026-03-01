@@ -27,7 +27,7 @@ class BrowserUseSubAgent:
         self._timeout_sec = timeout_sec
         self._use_vision = use_vision
         self._headless = headless
-        self._llm_factory = llm_factory or (lambda: ChatBrowserUse(model="gpt-4o-mini"))
+        self._llm_factory = llm_factory or (lambda: ChatBrowserUse(model="bu-latest"))
 
     async def run(self, job: SubAgentJob) -> SubAgentResult:
         started_at = utc_now()
