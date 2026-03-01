@@ -1,0 +1,31 @@
+# OS and editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Runtime output
+*.log
+bu-agent/weather-results-*.json
