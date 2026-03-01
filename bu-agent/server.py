@@ -6,9 +6,16 @@ import asyncio
 import json
 import uuid
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+
+# Load env so MINIMAX_API_KEY etc. are available (e.g. from repo root .env.local or bu-agent/.env)
+_root = Path(__file__).resolve().parent
+load_dotenv(_root / ".env")
+load_dotenv(_root.parent / ".env.local")
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse

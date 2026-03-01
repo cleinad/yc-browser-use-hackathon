@@ -1,14 +1,54 @@
 @import "tailwindcss";
-@plugin '../hero.ts';
-@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
-@custom-variant dark (&:is(.dark *));
 
-@theme inline {
-  --font-sans: var(--font-sans);
+:root {
+  color-scheme: dark;
+  --bg-base: #111110;
+  --bg-surface: #191917;
+  --bg-subtle: #23231f;
+  --fg-base: #f1efea;
+  --fg-muted: #b9b3a7;
+  --fg-disabled: #8e887d;
+  --border-default: #35332d;
+  --accent-primary: #f1efea;
+  --accent-primary-hover: #dfddd7;
+  --accent-amber: #d1904f;
+  --accent-jade: #6fa287;
+  --accent-destructive: #d06f6f;
 }
 
-@layer base {
-  body {
-    @apply antialiased;
-  }
+@theme inline {
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-fg-base: var(--fg-base);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-border-default: var(--border-default);
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-primary-hover: var(--accent-primary-hover);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-jade: var(--accent-jade);
+  --color-accent-destructive: var(--accent-destructive);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--fg-base);
+  font-family: Inter, Geist, system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-amber) 28%, transparent);
 }

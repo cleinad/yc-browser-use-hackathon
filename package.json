@@ -1,5 +1,5 @@
 {
-  "name": "procureswarm-next",
+  "name": "yc-browser-use-hackathon",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,12 +10,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@heroui/button": "^2.2.31",
-    "@heroui/card": "^2.2.27",
-    "@heroui/chip": "^2.2.24",
-    "@heroui/react": "^2.8.9",
-    "convex": "^1.32.0",
-    "framer-motion": "^12.34.3",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"

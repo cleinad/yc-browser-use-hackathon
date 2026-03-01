@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Providers } from "./providers";
+import { Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const instrumentSerif = Instrument_Serif({
+  weight: "400",
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-heading",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ProcureSwarm",
-  description: "Repair-to-procurement agent dashboard",
+  title: "Proquote",
+  description:
+    "Enterprise parts procurement assistant with live agent-backed quotes.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans bg-background text-foreground`}>
-        <Providers>{children}</Providers>
-      </body>
+    <html lang="en" className={instrumentSerif.variable}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
