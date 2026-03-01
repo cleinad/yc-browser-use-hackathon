@@ -70,7 +70,10 @@ SPONSORS.md
 SPONSORS.MD
 MEGAPLAN.md
 hero.ts
-docs/
+docs/SPONSORS.MD
+docs/MEGAPLAN.md
+docs/implementation-plan.md
+docs/overview.md
 
 # Legacy frontend
 frontend/
@@ -82,3 +85,6 @@ frontend/
 
 # Test output
 *.tmp
+
+# clerk configuration (can include secrets)
+/.clerk/

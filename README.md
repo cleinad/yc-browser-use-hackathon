@@ -1,5 +1,13 @@
 # yc-browser-use-hackathon
 
+## Architecture
+
+- Frontend (`app/`) handles UI and Clerk auth.
+- Convex (`convex/`) is backend + database.
+- `bu-agent/` is browser-use orchestration only.
+
+See [docs/CONTEXT.md](docs/CONTEXT.md) for the definitive split and request flow.
+
 setup venv
 ```bash
 uv venv --python 3.12
@@ -52,3 +60,15 @@ Run these in **two separate terminals** when developing:
    ```
 
 The Convex dev server must stay running for auth, database, and Convex functions to work.
+
+## Convex <-> bu-agent bridge
+
+Quote execution now runs through Convex actions (not direct browser SSE calls).
+
+Set a Convex env var for the bu-agent base URL:
+
+```bash
+npx convex env set BU_AGENT_BASE_URL https://<your-bu-agent-host>
+```
+
+Important: this URL must be reachable from your Convex deployment runtime.
