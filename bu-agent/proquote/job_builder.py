@@ -5,7 +5,7 @@ from __future__ import annotations
 from .models import SubAgentJob
 from .schemas import PartSpec
 
-DEFAULT_RETAILERS = ["homedepot.com", "lowes.com", "Cole Hardware"]
+DEFAULT_RETAILERS = ["homedepot.com", "lowes.com", "amazon.com"]
 
 TASK_TEMPLATE = """\
 Go to https://www.{retailer} and search for: {query}
@@ -22,6 +22,7 @@ If you find a matching product, extract the following as JSON:
 - availability: in-stock status or availability text, or null
 - delivery_estimate: shipping/delivery estimate{location_clause}, or null
 - product_url: the full URL of the product page, or null
+- image_url: the URL of the main product image (the src attribute of the product's primary image), or null
 
 If multiple results appear, pick the best match for: {query}
 

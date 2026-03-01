@@ -25,6 +25,7 @@ export interface LineItem {
   availability: string | null;
   delivery_estimate: string | null;
   product_url: string | null;
+  image_url: string | null;
   retailer: string | null;
 }
 

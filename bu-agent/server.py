@@ -123,3 +123,9 @@ async def quote_events(request_id: str):
             yield {"event": event_type, "data": payload}
 
     return EventSourceResponse(_generate())
+
+
+@app.post("/quote/sync")
+async def create_quote_sync(req: QuoteRequest):
+    plan = await run(req.text, retailers=req.retailers)
+    return plan.model_dump()
