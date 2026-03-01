@@ -72,3 +72,16 @@ npx convex env set BU_AGENT_BASE_URL https://<your-bu-agent-host>
 ```
 
 Important: this URL must be reachable from your Convex deployment runtime.
+
+## Optional: direct bu-agent mode (local dev shortcut)
+
+If you want to bypass Convex quote processing and stream directly from browser -> `bu-agent`,
+set this in `.env.local`:
+
+```bash
+NEXT_PUBLIC_DIRECT_BU_AGENT_MODE=true
+```
+
+Direct mode uses `NEXT_PUBLIC_API_BASE` (defaults to `http://localhost:8000`) and keeps
+chat request state in memory on `bu-agent` + browser session state in the current tab.
+It does not use Convex for quote request persistence/history.

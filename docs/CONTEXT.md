@@ -6,7 +6,7 @@
 - Owns user-facing UI and routing.
 - Uses Clerk for authentication and session management.
 - Talks to Convex functions (queries/mutations) for application data.
-- Should not call `bu-agent` directly.
+- Should not call `bu-agent` directly in the default architecture.
 
 ### Convex (`convex/`)
 - Source of truth for backend logic and database.
@@ -26,6 +26,11 @@
 4. Convex creates the request row and starts processing action.
 5. Convex action calls `bu-agent` and persists streamed events/results.
 6. Frontend renders live state from Convex queries.
+
+## Optional Local Dev Shortcut
+- `NEXT_PUBLIC_DIRECT_BU_AGENT_MODE=true` enables a direct browser -> `bu-agent` quote path.
+- This bypasses Convex quote processing and stores request/session state in memory only.
+- Use this for local iteration only; Convex remains the default integration boundary.
 
 ## Boundaries
 - Auth lives in Clerk.
