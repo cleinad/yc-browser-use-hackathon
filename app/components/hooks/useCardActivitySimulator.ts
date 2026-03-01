@@ -2,32 +2,37 @@
 
 import { useState, useEffect, useRef } from "react";
 
-const activityPhrases = [
-  "Navigating to site...",
+const genericActions = [
   "Scanning search results...",
   "Extracting price info...",
   "Checking availability...",
-  "Loading product pages...",
-  "Comparing options...",
-  "Reading product details...",
+  "Loading product page...",
+  "Reading product specs...",
   "Checking delivery options...",
-  "Verifying stock levels...",
+  "Parsing DOM elements...",
+  "Scrolling to product listing...",
+  "Comparing product variants...",
   "Collecting product data...",
+  "Verifying stock levels...",
+  "Extracting SKU info...",
+  "Checking cart availability...",
+  "Reading customer reviews...",
+  "Analyzing price breakdown...",
 ];
 
-function getRetailerPhrases(retailer: string): string[] {
-  const domain = retailer.replace(/\.com$/, "");
+function buildPhrasePipeline(retailer: string): string[] {
+  const domain = retailer.includes(".") ? retailer : `${retailer}.com`;
+  const name = retailer.replace(/\.com$/, "");
+
+  // Shuffle generic actions
+  const shuffled = [...genericActions].sort(() => Math.random() - 0.5);
+
   return [
-    `Navigating to ${retailer}...`,
-    `Searching ${domain} catalog...`,
-    "Scanning search results...",
-    "Extracting price info...",
-    "Checking availability...",
-    "Loading product page...",
-    "Reading product details...",
-    "Checking delivery options...",
-    "Verifying stock levels...",
-    "Collecting product data...",
+    `Opening ${domain}...`,
+    "Waiting for page load...",
+    `Searching ${name} catalog...`,
+    ...shuffled.slice(0, 8),
+    "Finalizing results...",
   ];
 }
 
@@ -36,43 +41,44 @@ export function useCardActivitySimulator(
   status: string
 ): string[] {
   const [lines, setLines] = useState<string[]>([]);
-  const phrasesRef = useRef<string[]>([]);
+  const pipelineRef = useRef<string[]>([]);
   const indexRef = useRef(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (retailer) {
-      phrasesRef.current = getRetailerPhrases(retailer);
-    } else {
-      phrasesRef.current = [...activityPhrases];
+    if (status !== "searching") {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
     }
-  }, [retailer]);
 
-  useEffect(() => {
-    if (status !== "searching") return;
+    pipelineRef.current = buildPhrasePipeline(retailer);
+    indexRef.current = 0;
 
-    // Start with the first phrase immediately
-    const firstPhrase =
-      phrasesRef.current[0] || activityPhrases[0];
-    setLines([firstPhrase]);
+    // Emit first line immediately
+    setLines([pipelineRef.current[0]]);
     indexRef.current = 1;
 
     const scheduleNext = () => {
-      const delay = 2000 + Math.random() * 2000; // 2-4s
-      return setTimeout(() => {
-        const phrases = phrasesRef.current.length
-          ? phrasesRef.current
-          : activityPhrases;
-        const idx = indexRef.current % phrases.length;
-        indexRef.current++;
+      const pipeline = pipelineRef.current;
+      if (pipeline.length === 0) {
+        return;
+      }
 
-        setLines((prev) => [...prev.slice(-2), phrases[idx]]);
-        timerRef = scheduleNext();
-      }, delay);
+      const idx = indexRef.current % pipeline.length;
+      indexRef.current++;
+      setLines((prev) => [...prev.slice(-3), pipeline[idx]]);
+
+      // Deterministic cadence keeps lint happy and still feels dynamic.
+      const delay = 900 + (indexRef.current % 5) * 160;
+      timerRef.current = setTimeout(scheduleNext, delay);
     };
 
-    let timerRef = scheduleNext();
-    return () => clearTimeout(timerRef);
-  }, [status]);
+    timerRef.current = setTimeout(scheduleNext, 700);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [status, retailer]);
 
   return lines;
 }

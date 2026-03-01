@@ -2,19 +2,15 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import { useQuery } from "convex/react";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useQuoteSession } from "@/app/chat/useQuoteSession";
 import MessageList from "@/app/components/MessageList";
 import ChatInput from "@/app/components/ChatInput";
-import CheckoutPanel from "@/app/components/checkout/CheckoutPanel";
 import { AuthControls } from "@/app/components/AuthControls";
 import { PropertyPicker } from "@/app/components/PropertyPicker";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
-import type { CheckoutStrategy, PurchasePlan } from "@/app/types";
 
 function normalizePropertyParam(value: string | string[] | undefined) {
   if (!value) {
@@ -37,22 +33,6 @@ export default function PropertyChatPage() {
   const { messages, loading, submit } = useQuoteSession(sessionPropertyId);
   const isEmpty = messages.length === 0;
   const isArchived = !!property?.isArchived;
-
-  const [dismissedPlanKey, setDismissedPlanKey] = useState<string | null>(null);
-  const [strategy, setStrategy] = useState<CheckoutStrategy>("cheapest");
-
-  const latestPlanEntry: { plan: PurchasePlan | null; key: string | null } = (() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const msg = messages[i];
-      if (msg.role === "agent" && msg.plan) {
-        return { plan: msg.plan, key: `${i}` };
-      }
-    }
-    return { plan: null, key: null };
-  })();
-
-  const latestPlan = latestPlanEntry.plan;
-  const panelOpen = !!latestPlan && latestPlanEntry.key !== dismissedPlanKey;
 
   if (!propertyIdParam) {
     return (
@@ -111,54 +91,33 @@ export default function PropertyChatPage() {
       </header>
 
       <main className="flex-1 flex items-start w-full px-4 pt-6 pb-4 sm:pt-8">
-        <LayoutGroup>
-          <motion.div
-            layout
-            className={`flex flex-col items-center justify-start mx-auto transition-all duration-300 ${
-              panelOpen ? "w-full sm:w-1/2 sm:pr-2" : "w-full max-w-4xl"
-            }`}
-          >
-            {isArchived && (
-              <div className="mb-4 w-full rounded-xl border border-[var(--accent-amber)] bg-[color-mix(in_srgb,var(--accent-amber)_12%,transparent)] px-4 py-3 text-sm text-[var(--fg-base)]">
-                This property is archived. Unarchive it on the dashboard to create new requests.
-              </div>
-            )}
-
-            {isEmpty ? (
-              <>
-                <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-[var(--fg-base)] text-center [font-family:var(--font-heading),serif]">
-                  What can I do for {property.name}?
-                </h1>
-                <div className="w-full mt-10 flex flex-col items-center">
-                  <ChatInput onSubmit={submit} disabled={loading || isArchived} />
-                </div>
-              </>
-            ) : (
-              <div className="w-full flex-1 min-h-0 flex flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  <MessageList
-                    messages={messages}
-                    onOpenPanel={() => setDismissedPlanKey(null)}
-                  />
-                </div>
-                <div className="border-t border-[var(--border-default)] bg-[var(--bg-surface)]">
-                  <ChatInput onSubmit={submit} disabled={loading || isArchived} />
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </LayoutGroup>
-
-        <AnimatePresence>
-          {panelOpen && latestPlan && (
-            <CheckoutPanel
-              plan={latestPlan}
-              strategy={strategy}
-              onStrategyChange={setStrategy}
-              onClose={() => setDismissedPlanKey(latestPlanEntry.key)}
-            />
+        <div className="flex flex-col items-center justify-start mx-auto w-full max-w-4xl">
+          {isArchived && (
+            <div className="mb-4 w-full rounded-xl border border-[var(--accent-amber)] bg-[color-mix(in_srgb,var(--accent-amber)_12%,transparent)] px-4 py-3 text-sm text-[var(--fg-base)]">
+              This property is archived. Unarchive it on the dashboard to create new requests.
+            </div>
           )}
-        </AnimatePresence>
+
+          {isEmpty ? (
+            <>
+              <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-[var(--fg-base)] text-center [font-family:var(--font-heading),serif]">
+                What can I do for {property.name}?
+              </h1>
+              <div className="w-full mt-10 flex flex-col items-center">
+                <ChatInput onSubmit={submit} disabled={loading || isArchived} />
+              </div>
+            </>
+          ) : (
+            <div className="w-full flex-1 min-h-0 flex flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <MessageList messages={messages} />
+              </div>
+              <div className="border-t border-[var(--border-default)] bg-[var(--bg-surface)]">
+                <ChatInput onSubmit={submit} disabled={loading || isArchived} />
+              </div>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

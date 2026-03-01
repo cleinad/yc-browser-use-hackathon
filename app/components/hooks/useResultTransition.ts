@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 
-export type ResultTransitionPhase = "searching" | "completing" | "complete";
+export type ResultTransitionPhase = "searching" | "complete";
 
 export interface ResultTransitionState {
   phase: ResultTransitionPhase;
   cardOpacity: number;
   cardScale: number;
-  showButton: boolean;
 }
 
 export function useResultTransition(
@@ -22,21 +21,15 @@ export function useResultTransition(
     if (!done || !hasPlan || triggered.current) return;
     triggered.current = true;
 
-    const t1 = setTimeout(() => setPhase("completing"), 600);
-    const t2 = setTimeout(() => setPhase("complete"), 1000);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    // Clean, immediate transition — no bounce
+    const t = setTimeout(() => setPhase("complete"), 300);
+    return () => clearTimeout(t);
   }, [done, hasPlan]);
 
   switch (phase) {
     case "searching":
-      return { phase, cardOpacity: 1, cardScale: 1, showButton: false };
-    case "completing":
-      return { phase, cardOpacity: 0.5, cardScale: 0.97, showButton: false };
+      return { phase, cardOpacity: 1, cardScale: 1 };
     case "complete":
-      return { phase, cardOpacity: 0.4, cardScale: 0.97, showButton: true };
+      return { phase, cardOpacity: 0.5, cardScale: 1 };
   }
 }

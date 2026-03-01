@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import type { AgentEventEntry, AgentCardState } from "../types";
 import { parseJobLabel } from "../types";
 import AgentBrowserCard from "./AgentBrowserCard";
@@ -10,6 +10,7 @@ interface AgentCardGridProps {
   events: AgentEventEntry[];
   cardOpacity?: number;
   cardScale?: number;
+  done?: boolean;
 }
 
 function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
@@ -22,7 +23,6 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
     if (!jobId) continue;
 
     const { retailer, query } = parseJobLabel(event.job_label ?? "");
-
     const existing = map.get(jobId);
 
     switch (event.event_type) {
@@ -83,41 +83,33 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
   return Array.from(map.values());
 }
 
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
 export default function AgentCardGrid({
   events,
   cardOpacity = 1,
   cardScale = 1,
+  done = false,
 }: AgentCardGridProps) {
   const cards = useMemo(() => buildCardStates(events), [events]);
 
   if (cards.length === 0) return null;
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
+    <div
+      className={done ? "max-h-48 overflow-y-auto rounded-lg" : ""}
       style={{
         opacity: cardOpacity,
-        scale: cardScale,
-        transition: "opacity 0.4s ease, transform 0.4s ease",
+        transform: `scale(${cardScale})`,
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+        transformOrigin: "top left",
       }}
-      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
     >
-      <AnimatePresence mode="popLayout">
-        {cards.map((card, index) => (
-          <AgentBrowserCard key={card.jobId} card={card} index={index} />
-        ))}
-      </AnimatePresence>
-    </motion.div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <AnimatePresence mode="popLayout">
+          {cards.map((card, index) => (
+            <AgentBrowserCard key={card.jobId} card={card} index={index} />
+          ))}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
