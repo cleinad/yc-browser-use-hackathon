@@ -38,7 +38,7 @@ export function ThemeToggle() {
   // Avoid hydration mismatch — render an inert placeholder until mounted
   if (!mounted) {
     return (
-      <div className="h-8 w-8 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]" />
+      <div className="h-8 w-8 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[0_2px_6px_rgba(0,0,0,0.05)]" />
     );
   }
 
@@ -48,7 +48,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}
-      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--fg-muted)] transition hover:border-[var(--fg-muted)] hover:text-[var(--fg-base)]"
+      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--fg-muted)] shadow-[0_2px_6px_rgba(0,0,0,0.05)] transition hover:border-[var(--fg-muted)] hover:text-[var(--fg-base)]"
     >
       {isDark ? (
         /* Sun — shown in dark mode, means "switch to light" */

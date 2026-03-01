@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import type { AgentEventEntry, ChatMessage, PurchasePlan, StatusEvent } from "../types";
+import type { AgentEventEntry, ChatMessage, OrderDecision, PurchasePlan, StatusEvent } from "../types";
 import { isPurchasePlan } from "../types";
 import { getQuoteEventsUrl, getQuoteUrl } from "../lib/api";
 
@@ -20,6 +20,7 @@ type TimelineStatusEvent = {
 type TimelineRow = {
   id: string;
   inputText: string;
+  displayText: string | null;
   status: "queued" | "running" | "succeeded" | "failed";
   error: string | null;
   createdAt: number;
@@ -30,7 +31,12 @@ type TimelineRow = {
     | { kind: "status"; status: TimelineStatusEvent; ts: number }
   >;
   result: unknown | null;
+  decision: string;
+  acceptedOptionRank: number | null;
+  decidedAt: number | null;
 };
+
+type SubmitInput = string | { payloadText: string; displayText: string };
 
 type DirectTurn = {
   id: string;
@@ -39,6 +45,7 @@ type DirectTurn = {
   plan: PurchasePlan | null;
   error: string | null;
   done: boolean;
+  createdAt: number;
 };
 
 function toErrorMessage(error: unknown): string {
@@ -53,11 +60,108 @@ function isEnabled(value: string | undefined): boolean {
   return normalized === "true" || normalized === "1" || normalized === "yes";
 }
 
+const DIRECT_HISTORY_STORAGE_PREFIX = "proquote-direct-history";
+
+function getDirectHistoryStorageKey(propertyId: Id<"properties"> | null): string {
+  if (!propertyId) {
+    return `${DIRECT_HISTORY_STORAGE_PREFIX}:legacy`;
+  }
+  return `${DIRECT_HISTORY_STORAGE_PREFIX}:property:${propertyId}`;
+}
+
 function makeLocalTurnId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
   }
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  return value as Record<string, unknown>;
+}
+
+function parseStoredStatusEvent(value: unknown): StatusEvent | null {
+  const parsed = asRecord(value);
+  if (!parsed || typeof parsed.event_type !== "string") {
+    return null;
+  }
+
+  return {
+    event_type: parsed.event_type as StatusEvent["event_type"],
+    timestamp: typeof parsed.timestamp === "string" ? parsed.timestamp : null,
+    message: typeof parsed.message === "string" ? parsed.message : null,
+    job_id: typeof parsed.job_id === "string" ? parsed.job_id : null,
+    job_label: typeof parsed.job_label === "string" ? parsed.job_label : null,
+    attempt: typeof parsed.attempt === "number" ? parsed.attempt : null,
+  };
+}
+
+function parseStoredAgentEventEntry(value: unknown): AgentEventEntry | null {
+  const parsed = asRecord(value);
+  if (!parsed || typeof parsed.kind !== "string") {
+    return null;
+  }
+
+  if (parsed.kind === "log" && typeof parsed.text === "string") {
+    return { kind: "log", text: parsed.text };
+  }
+
+  if (parsed.kind === "status") {
+    const event = parseStoredStatusEvent(parsed.event);
+    if (!event) {
+      return null;
+    }
+    return { kind: "status", event };
+  }
+
+  return null;
+}
+
+function parseStoredDirectTurns(raw: string | null): DirectTurn[] {
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    const turns: DirectTurn[] = [];
+    for (const item of parsed) {
+      const turn = asRecord(item);
+      if (!turn || typeof turn.prompt !== "string") {
+        continue;
+      }
+
+      const events = Array.isArray(turn.events)
+        ? turn.events
+            .map((event) => parseStoredAgentEventEntry(event))
+            .filter((event): event is AgentEventEntry => event !== null)
+        : [];
+
+      turns.push({
+        id: typeof turn.id === "string" ? turn.id : makeLocalTurnId(),
+        prompt: turn.prompt,
+        events,
+        plan: isPurchasePlan(turn.plan) ? (turn.plan as PurchasePlan) : null,
+        error: typeof turn.error === "string" ? turn.error : null,
+        done: turn.done === true,
+        createdAt:
+          typeof turn.createdAt === "number" && Number.isFinite(turn.createdAt)
+            ? turn.createdAt
+            : 0,
+      });
+    }
+
+    return turns;
+  } catch {
+    return [];
+  }
 }
 
 function parseDirectStatusEvent(raw: string): StatusEvent | null {
@@ -89,8 +193,24 @@ async function shortResponseText(response: Response) {
   }
 }
 
-export function useQuoteSession(propertyId: Id<"properties"> | null) {
-  const directMode = isEnabled(process.env.NEXT_PUBLIC_DIRECT_BU_AGENT_MODE);
+export function useQuoteSession(
+  propertyId: Id<"properties"> | null,
+  options?: { sinceTs?: number | null },
+) {
+  const sinceTs = options?.sinceTs ?? null;
+  const directModeRequested = isEnabled(
+    process.env.NEXT_PUBLIC_DIRECT_BU_AGENT_MODE,
+  );
+  const hackathonDirectMode = isEnabled(
+    process.env.NEXT_PUBLIC_HACKATHON_DIRECT_MODE,
+  );
+  // Property-scoped chat must stay persistent via Convex.
+  // Hackathon mode can opt into direct mode for property chat too.
+  const directMode = directModeRequested && (!propertyId || hackathonDirectMode);
+  const directHistoryStorageKey = useMemo(
+    () => getDirectHistoryStorageKey(propertyId),
+    [propertyId],
+  );
   const timeline = useQuery(
     api.quotes.listMineWithEvents,
     directMode || !propertyId ? "skip" : { limit: 20, propertyId },
@@ -105,6 +225,13 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
   const [directTurns, setDirectTurns] = useState<DirectTurn[]>([]);
   const activeStreamsRef = useRef<Map<string, EventSource>>(new Map());
 
+  const visibleTimeline = useMemo(() => {
+    if (!sinceTs) {
+      return timeline ?? [];
+    }
+    return (timeline ?? []).filter((request) => request.createdAt >= sinceTs);
+  }, [sinceTs, timeline]);
+
   useEffect(() => {
     const streams = activeStreamsRef.current;
     return () => {
@@ -114,6 +241,28 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
       streams.clear();
     };
   }, []);
+
+  useEffect(() => {
+    if (!directMode || typeof window === "undefined") {
+      return;
+    }
+
+    const streams = activeStreamsRef.current;
+    for (const stream of streams.values()) {
+      stream.close();
+    }
+    streams.clear();
+
+    const raw = window.localStorage.getItem(directHistoryStorageKey);
+    setDirectTurns(parseStoredDirectTurns(raw));
+  }, [directMode, directHistoryStorageKey]);
+
+  useEffect(() => {
+    if (!directMode || typeof window === "undefined") {
+      return;
+    }
+    window.localStorage.setItem(directHistoryStorageKey, JSON.stringify(directTurns));
+  }, [directMode, directHistoryStorageKey, directTurns]);
 
   const updateDirectTurn = useCallback(
     (turnId: string, updater: (turn: DirectTurn) => DirectTurn) => {
@@ -127,8 +276,8 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
   const convexMessages: ChatMessage[] = useMemo(() => {
     const built: ChatMessage[] = [];
 
-    for (const request of timeline ?? []) {
-      built.push({ role: "user", text: request.inputText });
+    for (const request of visibleTimeline) {
+      built.push({ role: "user", text: request.displayText ?? request.inputText });
 
       const events: AgentEventEntry[] = request.events.map((event) => {
         if (event.kind === "log") {
@@ -151,6 +300,9 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
         plan,
         error: request.error,
         done: request.status === "succeeded" || request.status === "failed",
+        requestId: request.id,
+        decision: (request.decision ?? "pending") as OrderDecision,
+        acceptedOptionRank: request.acceptedOptionRank ?? null,
       });
     }
 
@@ -166,12 +318,15 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
     }
 
     return built;
-  }, [timeline, localFailure]);
+  }, [visibleTimeline, localFailure]);
 
   const directMessages: ChatMessage[] = useMemo(() => {
+    const visibleTurns = sinceTs
+      ? directTurns.filter((turn) => turn.createdAt >= sinceTs)
+      : directTurns;
     const built: ChatMessage[] = [];
 
-    for (const turn of directTurns) {
+    for (const turn of visibleTurns) {
       built.push({ role: "user", text: turn.prompt });
       built.push({
         role: "agent",
@@ -183,7 +338,7 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
     }
 
     return built;
-  }, [directTurns]);
+  }, [directTurns, sinceTs]);
 
   const messages = directMode ? directMessages : convexMessages;
 
@@ -196,15 +351,19 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
   const loading = submitting || hasActiveRequest;
 
   const submit = useCallback(
-    async (text: string) => {
-      const trimmed = text.trim();
-      if (!trimmed || loading) {
+    async (input: SubmitInput) => {
+      const payloadText =
+        typeof input === "string" ? input.trim() : input.payloadText.trim();
+      const displayText =
+        typeof input === "string" ? payloadText : input.displayText.trim();
+
+      if (!payloadText || !displayText || loading) {
         return;
       }
 
       if (!directMode && !propertyId) {
         setLocalFailure({
-          prompt: trimmed,
+          prompt: displayText,
           error: "Select a property before creating a request.",
         });
         return;
@@ -220,11 +379,12 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
           ...prev,
           {
             id: turnId,
-            prompt: trimmed,
+            prompt: displayText,
             events: [],
             plan: null,
             error: null,
             done: false,
+            createdAt: Date.now(),
           },
         ]);
 
@@ -234,7 +394,7 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ text: trimmed }),
+            body: JSON.stringify({ text: payloadText }),
           });
 
           if (!createResponse.ok) {
@@ -353,11 +513,12 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
       try {
         await createQuote({
           propertyId: propertyId as Id<"properties">,
-          inputText: trimmed,
+          inputText: payloadText,
+          displayText,
         });
       } catch (error) {
         setLocalFailure({
-          prompt: trimmed,
+          prompt: displayText,
           error: toErrorMessage(error),
         });
       } finally {
@@ -367,5 +528,7 @@ export function useQuoteSession(propertyId: Id<"properties"> | null) {
     [createQuote, directMode, loading, propertyId, updateDirectTurn],
   );
 
-  return { messages, loading, submit };
+  const timelineLoaded = directMode || timeline !== undefined;
+
+  return { messages, loading, submit, timelineLoaded };
 }

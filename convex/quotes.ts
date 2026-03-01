@@ -105,6 +105,7 @@ export const create = mutation({
   args: {
     propertyId: v.id("properties"),
     inputText: v.string(),
+    displayText: v.optional(v.string()),
     location: v.optional(v.string()),
     deadlineIso: v.optional(v.string()),
   },
@@ -120,6 +121,7 @@ export const create = mutation({
       userId,
       propertyId: args.propertyId,
       inputText: args.inputText,
+      displayText: args.displayText,
       location: args.location,
       deadlineIso: args.deadlineIso,
       status: "queued",
@@ -131,6 +133,33 @@ export const create = mutation({
     });
 
     return requestId;
+  },
+});
+
+export const setDecision = mutation({
+  args: {
+    requestId: v.id("quoteRequests"),
+    decision: v.union(v.literal("accepted"), v.literal("rejected"), v.literal("pending")),
+    optionRank: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await ensureUserIdFromIdentity(ctx);
+    const request = await ctx.db.get(args.requestId);
+    if (!request || request.userId !== userId) {
+      throw new Error("Request not found.");
+    }
+    if (request.status !== "succeeded") {
+      throw new Error("Can only set decisions on completed requests.");
+    }
+
+    const selectedOptionRank =
+      args.decision === "pending" ? undefined : args.optionRank;
+
+    await ctx.db.patch(args.requestId, {
+      decision: args.decision,
+      acceptedOptionRank: selectedOptionRank,
+      decidedAt: Date.now(),
+    });
   },
 });
 
@@ -259,6 +288,7 @@ export const listMineWithEvents = query({
         return {
           id: request._id,
           inputText: request.inputText,
+          displayText: request.displayText ?? null,
           status: request.status,
           error: request.error ?? null,
           createdAt: request.createdAt,
@@ -266,6 +296,9 @@ export const listMineWithEvents = query({
           finishedAt: request.finishedAt ?? null,
           events,
           result,
+          decision: request.decision ?? "pending",
+          acceptedOptionRank: request.acceptedOptionRank ?? null,
+          decidedAt: request.decidedAt ?? null,
         };
       }),
     );
@@ -440,13 +473,15 @@ async function* readSseEvents(stream: ReadableStream<Uint8Array>): AsyncGenerato
     buffer += decoder.decode(value, { stream: true });
 
     while (true) {
-      const splitAt = buffer.indexOf("\n\n");
-      if (splitAt === -1) {
+      const boundary = buffer.match(/\r?\n\r?\n/);
+      if (!boundary || boundary.index === undefined) {
         break;
       }
+      const splitAt = boundary.index;
+      const delimiterLength = boundary[0].length;
 
       const rawBlock = buffer.slice(0, splitAt);
-      buffer = buffer.slice(splitAt + 2);
+      buffer = buffer.slice(splitAt + delimiterLength);
 
       const parsed = parseSseBlock(rawBlock);
       if (parsed) {

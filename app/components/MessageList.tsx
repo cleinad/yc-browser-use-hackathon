@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import type { ChatMessage, AgentMessage, CheckoutStrategy } from "../types";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import type { ChatMessage, AgentMessage, OrderDecision } from "../types";
 import AgentCardGrid from "./AgentCardGrid";
 import OrchestratorThinkingBanner from "./OrchestratorThinkingBanner";
-import PurchasePlanCard from "./PurchasePlanCard";
-import StrategyToggle from "./checkout/StrategyToggle";
+import RecommendationGrid from "./RecommendationGrid";
 import ComparisonTable from "./checkout/ComparisonTable";
 import CheckoutFooter from "./checkout/CheckoutFooter";
 import { useOrchestratorState } from "./hooks/useOrchestratorState";
@@ -26,8 +28,22 @@ function AgentMessageBlock({ msg }: { msg: AgentMessage }) {
   );
   const transition = useResultTransition(msg.done, !!msg.plan);
   const [startTime] = useState(() => Date.now());
-  const [strategy, setStrategy] = useState<CheckoutStrategy>("cheapest");
-  const comparisonTable = useComparisonData(msg.plan ?? null, strategy);
+  const comparisonTable = useComparisonData(msg.plan ?? null, "cheapest");
+  const setDecision = useMutation(api.quotes.setDecision);
+  const [showComparison, setShowComparison] = useState(false);
+
+  const handleDecisionChange = async (decision: OrderDecision, optionRank?: number) => {
+    if (!msg.requestId) return;
+    try {
+      await setDecision({
+        requestId: msg.requestId as Id<"quoteRequests">,
+        decision,
+        optionRank,
+      });
+    } catch {
+      // Mutation failed silently — UI will reflect server state via reactivity
+    }
+  };
 
   return (
     <div className="max-w-full space-y-3">
@@ -52,7 +68,7 @@ function AgentMessageBlock({ msg }: { msg: AgentMessage }) {
         </div>
       )}
 
-      {/* Inline purchase plan — appears directly in the chat */}
+      {/* Recommendation grid — replaces old StrategyToggle + PurchasePlanCard */}
       {msg.done && msg.plan && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -60,19 +76,37 @@ function AgentMessageBlock({ msg }: { msg: AgentMessage }) {
           transition={{ duration: 0.25, delay: 0.2 }}
           className="space-y-4"
         >
-          {/* Strategy toggle */}
-          <StrategyToggle strategy={strategy} onChange={setStrategy} />
+          <RecommendationGrid
+            plan={msg.plan}
+            requestId={msg.requestId ?? ""}
+            decision={msg.decision ?? "pending"}
+            acceptedOptionRank={msg.acceptedOptionRank ?? null}
+            onDecisionChange={handleDecisionChange}
+          />
 
-          {/* Comparison table */}
+          {/* Collapsible comparison table */}
           {comparisonTable && (
-            <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] overflow-hidden">
-              <ComparisonTable table={comparisonTable} />
-              <CheckoutFooter retailerTotals={comparisonTable.retailerTotals} />
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowComparison(!showComparison)}
+                className="text-xs text-[var(--fg-muted)] hover:text-[var(--fg-base)] underline-offset-2 hover:underline"
+              >
+                {showComparison ? "Hide" : "View"} detailed comparison
+              </button>
+              {showComparison && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] overflow-hidden"
+                >
+                  <ComparisonTable table={comparisonTable} />
+                  <CheckoutFooter retailerTotals={comparisonTable.retailerTotals} />
+                </motion.div>
+              )}
             </div>
           )}
-
-          {/* Full plan card with all options */}
-          <PurchasePlanCard plan={msg.plan} />
         </motion.div>
       )}
     </div>

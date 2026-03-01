@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import uuid
 from dataclasses import asdict
 from pathlib import Path
@@ -21,6 +22,7 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 from proquote.controller import run
+from proquote.models import OrchestratorConfig
 from proquote.models import StatusEvent
 from proquote.worker_controller import run_worker_search
 from proquote.vision_analyzer import analyze_image
@@ -66,6 +68,50 @@ class QuoteResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Runtime config (env-driven)
+# ---------------------------------------------------------------------------
+
+
+def _bool_env(name: str, default: bool) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    normalized = raw.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
+def _int_env(name: str, default: int, *, minimum: int | None = None) -> int:
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        value = default
+    else:
+        try:
+            value = int(raw)
+        except ValueError:
+            value = default
+    if minimum is not None:
+        return max(minimum, value)
+    return value
+
+
+def _orchestrator_config_from_env() -> OrchestratorConfig:
+    return OrchestratorConfig(
+        max_subagents=_int_env("PROQUOTE_MAX_SUBAGENTS", 5, minimum=1),
+        per_agent_timeout_sec=_int_env("PROQUOTE_PER_AGENT_TIMEOUT_SEC", 90, minimum=1),
+        max_steps=_int_env("PROQUOTE_MAX_STEPS", 40, minimum=1),
+        retries=_int_env("PROQUOTE_RETRIES", 1, minimum=0),
+        use_vision=_bool_env("PROQUOTE_USE_VISION", False),
+        headless=_bool_env("PROQUOTE_HEADLESS", True),
+        use_cloud=_bool_env("PROQUOTE_USE_CLOUD", True),
+        cloud_proxy_country_code=os.environ.get("PROQUOTE_CLOUD_PROXY_COUNTRY", "us"),
+    )
+
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -83,6 +129,8 @@ def _serialize_status_event(evt: StatusEvent) -> dict[str, Any]:
 
 @app.post("/quote", response_model=QuoteResponse)
 async def create_quote(req: QuoteRequest):
+    config = _orchestrator_config_from_env()
+    request_timeout_sec = _int_env("PROQUOTE_REQUEST_TIMEOUT_SEC", 600, minimum=10)
     request_id = uuid.uuid4().hex[:12]
     queue: asyncio.Queue[Any] = asyncio.Queue()
     _requests[request_id] = {
@@ -93,17 +141,30 @@ async def create_quote(req: QuoteRequest):
 
     async def _run():
         try:
-            plan = await run(
-                req.text,
-                retailers=req.retailers,
-                status_handler=lambda evt: queue.put_nowait(
-                    ("status", _serialize_status_event(evt))
+            plan = await asyncio.wait_for(
+                run(
+                    req.text,
+                    retailers=req.retailers,
+                    config=config,
+                    status_handler=lambda evt: queue.put_nowait(
+                        ("status", _serialize_status_event(evt))
+                    ),
+                    log=lambda msg: queue.put_nowait(("log", msg)),
                 ),
-                log=lambda msg: queue.put_nowait(("log", msg)),
+                timeout=request_timeout_sec,
             )
             _requests[request_id]["result"] = plan.model_dump()
             _requests[request_id]["status"] = "done"
             queue.put_nowait(("result", plan.model_dump()))
+        except asyncio.TimeoutError:
+            _requests[request_id]["status"] = "error"
+            queue.put_nowait(
+                (
+                    "error",
+                    f"Request timed out after {request_timeout_sec} seconds. "
+                    "Try a more specific query or reduce retries/timeouts in bu-agent env.",
+                )
+            )
         except Exception as exc:
             _requests[request_id]["status"] = "error"
             queue.put_nowait(("error", str(exc)))

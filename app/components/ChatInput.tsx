@@ -1,18 +1,21 @@
 "use client";
 
-import { useRef, useCallback, KeyboardEvent } from "react";
+import { useRef, useState, useCallback, type ChangeEvent, type KeyboardEvent } from "react";
 
 interface ChatInputProps {
-  onSubmit: (text: string) => void;
+  onSubmit: (
+    input: string | { payloadText: string; displayText: string }
+  ) => void;
   disabled: boolean;
 }
 
-const SUGGESTIONS = [
-  { label: "Get a quote", example: "I need a quote for 12x M4 stainless socket head cap screws, delivery in 5 days." },
-  { label: "Compare vendors", example: "Compare prices for toilet seat and hinge kit across vendors, lowest total." },
-  { label: "Find parts", example: "Find toilet seat round white and mounting hardware for bathroom repair." },
-  { label: "More", example: "" },
-];
+type CsvAttachment = {
+  name: string;
+  content: string;
+  nonEmptyRowCount: number;
+};
+
+const MAX_CSV_SIZE_BYTES = 1024 * 1024; // 1MB
 
 function PlusIcon({ className }: { className?: string }) {
   return (
@@ -32,18 +35,101 @@ function ArrowUpIcon({ className }: { className?: string }) {
   );
 }
 
+function PaperclipIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21.44 11.05l-8.49 8.49a5 5 0 0 1-7.07-7.07l8.49-8.49a3 3 0 1 1 4.24 4.24l-8.49 8.49a1 1 0 0 1-1.41-1.41l8.49-8.49" />
+    </svg>
+  );
+}
+
+function CloseIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function countNonEmptyRows(content: string): number {
+  return content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean).length;
+}
+
+function buildCsvTexts(notes: string, attachment: CsvAttachment): {
+  payloadText: string;
+  displayText: string;
+} {
+  const noteSection = notes.trim();
+  const csvSection = attachment.content.trim();
+
+  const payloadParts: string[] = [];
+  if (noteSection) {
+    payloadParts.push(noteSection);
+  }
+  payloadParts.push(
+    `Attached CSV: ${attachment.name} (${attachment.nonEmptyRowCount} rows)\n\n${csvSection}`,
+  );
+
+  const displayText = noteSection
+    ? `${noteSection}\n\n[Attached CSV: ${attachment.name} (${attachment.nonEmptyRowCount} rows)]`
+    : `[Attached CSV: ${attachment.name} (${attachment.nonEmptyRowCount} rows)]`;
+
+  return {
+    payloadText: payloadParts.join("\n\n"),
+    displayText,
+  };
+}
+
 export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [csvAttachment, setCsvAttachment] = useState<CsvAttachment | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const submit = useCallback(
     (text?: string) => {
-      const value = text ?? ref.current?.value.trim();
-      if (!value) return;
-      onSubmit(value);
-      if (ref.current) ref.current.value = "";
-      if (ref.current) ref.current.style.height = "auto";
+      const noteText = (text ?? ref.current?.value ?? "").trim();
+      if (!noteText && !csvAttachment) {
+        return;
+      }
+
+      if (csvAttachment) {
+        onSubmit(buildCsvTexts(noteText, csvAttachment));
+      } else {
+        onSubmit(noteText);
+      }
+      setCsvAttachment(null);
+      setFileError(null);
+      if (ref.current) {
+        ref.current.value = "";
+        ref.current.style.height = "auto";
+      }
     },
-    [onSubmit]
+    [csvAttachment, onSubmit],
   );
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -60,8 +146,47 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
     el.style.height = Math.min(el.scrollHeight, 160) + "px";
   };
 
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > MAX_CSV_SIZE_BYTES) {
+      setFileError("CSV is too large. Please keep it under 1MB.");
+      return;
+    }
+
+    try {
+      const content = await file.text();
+      const nonEmptyRowCount = countNonEmptyRows(content);
+      if (!content.trim() || nonEmptyRowCount === 0) {
+        setFileError("CSV appears empty. Please attach a file with at least one row.");
+        return;
+      }
+
+      setCsvAttachment({
+        name: file.name,
+        content,
+        nonEmptyRowCount,
+      });
+      setFileError(null);
+    } catch {
+      setFileError("Could not read this file. Please try another CSV.");
+    }
+  };
+
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-6">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".csv,text/csv"
+        className="hidden"
+        onChange={handleFileChange}
+      />
       <div
         className="flex items-end gap-2 rounded-[1.75rem] border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition focus-within:border-[var(--fg-muted)] focus-within:shadow-[0_0_0_1px_var(--border-default)]"
         style={{ minHeight: "56px" }}
@@ -69,19 +194,39 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
         <button
           type="button"
           aria-label="Attach"
+          disabled={disabled}
+          onClick={() => fileInputRef.current?.click()}
           className="flex shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)] text-[var(--bg-base)] w-9 h-9 ml-2 mb-2 hover:bg-[var(--accent-primary-hover)] transition"
         >
           <PlusIcon />
         </button>
-        <textarea
-          ref={ref}
-          rows={1}
-          disabled={disabled}
-          placeholder="Assign a task or ask anything"
-          onKeyDown={handleKeyDown}
-          onInput={handleInput}
-          className="flex-1 min-h-[52px] py-3 px-1 resize-none bg-transparent text-[var(--fg-base)] placeholder-[var(--fg-muted)] text-sm leading-6 outline-none disabled:text-[var(--fg-disabled)]"
-        />
+        <div className="flex-1 min-h-[52px] py-2 px-1 flex flex-col justify-center">
+          {csvAttachment && (
+            <div className="mb-1.5 inline-flex max-w-full items-center gap-1.5 self-start rounded-full border border-[var(--border-default)] bg-[var(--bg-base)] px-2.5 py-1 text-xs text-[var(--fg-base)]">
+              <PaperclipIcon />
+              <span className="truncate max-w-52">
+                {csvAttachment.name} ({csvAttachment.nonEmptyRowCount} rows)
+              </span>
+              <button
+                type="button"
+                aria-label="Remove attached CSV"
+                onClick={() => setCsvAttachment(null)}
+                className="rounded-full p-0.5 text-[var(--fg-muted)] hover:text-[var(--fg-base)]"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+          )}
+          <textarea
+            ref={ref}
+            rows={1}
+            disabled={disabled}
+            placeholder="Assign a task or ask anything"
+            onKeyDown={handleKeyDown}
+            onInput={handleInput}
+            className="min-h-[32px] w-full resize-none bg-transparent py-1 pr-1 text-sm leading-6 text-[var(--fg-base)] placeholder-[var(--fg-muted)] outline-none disabled:text-[var(--fg-disabled)]"
+          />
+        </div>
         <button
           type="button"
           onClick={() => submit()}
@@ -92,23 +237,9 @@ export default function ChatInput({ onSubmit, disabled }: ChatInputProps) {
           <ArrowUpIcon />
         </button>
       </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-        {SUGGESTIONS.slice(0, 3).map((s) => (
-          <button
-            key={s.label}
-            type="button"
-            onClick={() => s.example && submit(s.example)}
-            disabled={disabled || !s.example}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--bg-base)] px-4 py-2 text-sm text-[var(--fg-base)] hover:bg-[var(--bg-subtle)] hover:border-[var(--fg-muted)] transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {s.label}
-          </button>
-        ))}
-        <span className="rounded-full border border-[var(--border-default)] bg-[var(--bg-base)] px-4 py-2 text-sm text-[var(--fg-muted)]">
-          More
-        </span>
-      </div>
+      {fileError && (
+        <p className="mt-2 text-xs text-[var(--accent-destructive)]">{fileError}</p>
+      )}
     </div>
   );
 }

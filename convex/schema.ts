@@ -29,6 +29,7 @@ export default defineSchema({
     userId: v.id("users"),
     propertyId: v.optional(v.id("properties")),
     inputText: v.string(),
+    displayText: v.optional(v.string()),
     location: v.optional(v.string()),
     deadlineIso: v.optional(v.string()),
     status: v.union(
@@ -41,6 +42,9 @@ export default defineSchema({
     createdAt: v.number(),
     startedAt: v.optional(v.number()),
     finishedAt: v.optional(v.number()),
+    decision: v.optional(v.union(v.literal("pending"), v.literal("accepted"), v.literal("rejected"))),
+    acceptedOptionRank: v.optional(v.number()),
+    decidedAt: v.optional(v.number()),
   })
     .index("by_user_createdAt", ["userId", "createdAt"])
     .index("by_user_property_createdAt", ["userId", "propertyId", "createdAt"])
