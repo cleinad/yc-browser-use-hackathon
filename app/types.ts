@@ -139,6 +139,73 @@ export interface ComparisonTable {
   retailerTotals: Map<string, number>;
 }
 
+// --- Ticket types ---
+
+export type TicketPhase =
+  | "idle"
+  | "uploading"
+  | "analyzing"
+  | "finding_contractors"
+  | "sending_quotes"
+  | "receiving_quotes"
+  | "finding_supplies"
+  | "complete";
+
+export type TicketStepStatus = "pending" | "active" | "complete";
+
+export interface TicketStep {
+  label: string;
+  subtitle?: string;
+  status: TicketStepStatus;
+}
+
+export interface VisionAnalysis {
+  issue_description: string;
+  trade: string;
+  severity: string;
+  follow_up_questions: string[];
+}
+
+export interface TicketContractor {
+  name: string;
+  phone: string | null;
+  address: string | null;
+  rating: number | null;
+  trade_category: string;
+  email: string;
+}
+
+export interface ContractorInbox {
+  contractor_name: string;
+  contractor_email: string;
+  inbox_address: string;
+  email_subject: string;
+  email_body: string;
+  send_status: "pending" | "sent" | "failed";
+}
+
+export interface ContractorQuote {
+  contractor_name: string;
+  contractor_email: string;
+  inbox_address: string;
+  csv_data: string;
+  total_price: number;
+  timeline_days: number;
+}
+
+export interface CsvRow {
+  part_name: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+}
+
+export interface TicketMessage {
+  role: "user" | "agent";
+  text: string;
+  imageUrl?: string;
+}
+
 /** Splits "homedepot.com — toilet seat" into { retailer, query }. */
 export function parseJobLabel(label: string): {
   retailer: string;

@@ -53,6 +53,36 @@ async def chat_json(
     return extract_json(raw)
 
 
+async def chat_vision_json(
+    system_prompt: str,
+    image_base64: str,
+    user_text: str | None = None,
+    *,
+    model: str = DEFAULT_MODEL,
+) -> dict | list:
+    """Send a vision chat request with a base64 image and parse as JSON."""
+    client = _get_client()
+    user_content: list[dict] = [
+        {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+        },
+    ]
+    if user_text:
+        user_content.append({"type": "text", "text": user_text})
+
+    response = await client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_content},
+        ],
+        temperature=0.2,
+    )
+    raw = response.choices[0].message.content or ""
+    return extract_json(raw.strip())
+
+
 def extract_json(text: str) -> dict | list:
     """Extract JSON from LLM output, handling code fences."""
     # Try stripping markdown code fences first

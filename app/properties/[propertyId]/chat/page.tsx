@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
@@ -11,6 +12,7 @@ import ChatInput from "@/app/components/ChatInput";
 import { AuthControls } from "@/app/components/AuthControls";
 import { PropertyPicker } from "@/app/components/PropertyPicker";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
+import TicketTab from "./TicketTab";
 
 function normalizePropertyParam(value: string | string[] | undefined) {
   if (!value) {
@@ -33,6 +35,7 @@ export default function PropertyChatPage() {
   const { messages, loading, submit } = useQuoteSession(sessionPropertyId);
   const isEmpty = messages.length === 0;
   const isArchived = !!property?.isArchived;
+  const [activeTab, setActiveTab] = useState<"chat" | "ticket">("chat");
 
   if (!propertyIdParam) {
     return (
@@ -92,13 +95,43 @@ export default function PropertyChatPage() {
 
       <main className="flex-1 flex items-start w-full px-4 pt-6 pb-4 sm:pt-8">
         <div className="flex flex-col items-center justify-start mx-auto w-full max-w-4xl">
+          {/* Tab switcher */}
+          <div className="mb-4 flex items-center gap-1 rounded-full border border-[var(--border-default)] bg-[var(--bg-surface)] p-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("chat")}
+              className={`rounded-full px-5 py-1.5 text-sm font-medium transition ${
+                activeTab === "chat"
+                  ? "bg-[var(--accent-primary)] text-[var(--bg-base)]"
+                  : "text-[var(--fg-muted)] hover:text-[var(--fg-base)]"
+              }`}
+            >
+              Chat
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("ticket")}
+              className={`rounded-full px-5 py-1.5 text-sm font-medium transition ${
+                activeTab === "ticket"
+                  ? "bg-[var(--accent-primary)] text-[var(--bg-base)]"
+                  : "text-[var(--fg-muted)] hover:text-[var(--fg-base)]"
+              }`}
+            >
+              Create a Ticket
+            </button>
+          </div>
+
           {isArchived && (
             <div className="mb-4 w-full rounded-xl border border-[var(--accent-amber)] bg-[color-mix(in_srgb,var(--accent-amber)_12%,transparent)] px-4 py-3 text-sm text-[var(--fg-base)]">
               This property is archived. Unarchive it on the dashboard to create new requests.
             </div>
           )}
 
-          {isEmpty ? (
+          {activeTab === "ticket" ? (
+            <div className="w-full flex-1 min-h-0 flex flex-col rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden" style={{ minHeight: "500px" }}>
+              <TicketTab propertyAddress={property.address ?? null} />
+            </div>
+          ) : isEmpty ? (
             <>
               <h1 className="text-3xl sm:text-4xl font-normal tracking-tight text-[var(--fg-base)] text-center [font-family:var(--font-heading),serif]">
                 What can I do for {property.name}?
