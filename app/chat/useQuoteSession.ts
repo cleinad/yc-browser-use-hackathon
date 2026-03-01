@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import type { AgentEventEntry, ChatMessage, PurchasePlan, StatusEvent } from "../types";
 import { isPurchasePlan } from "../types";
 import { getQuoteEventsUrl, getQuoteUrl } from "../lib/api";
@@ -88,11 +89,11 @@ async function shortResponseText(response: Response) {
   }
 }
 
-export function useQuoteSession() {
+export function useQuoteSession(propertyId: Id<"properties"> | null) {
   const directMode = isEnabled(process.env.NEXT_PUBLIC_DIRECT_BU_AGENT_MODE);
   const timeline = useQuery(
     api.quotes.listMineWithEvents,
-    directMode ? "skip" : { limit: 20 },
+    directMode || !propertyId ? "skip" : { limit: 20, propertyId },
   ) as TimelineRow[] | undefined;
   const createQuote = useMutation(api.quotes.create);
 
@@ -198,6 +199,14 @@ export function useQuoteSession() {
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || loading) {
+        return;
+      }
+
+      if (!directMode && !propertyId) {
+        setLocalFailure({
+          prompt: trimmed,
+          error: "Select a property before creating a request.",
+        });
         return;
       }
 
@@ -342,7 +351,10 @@ export function useQuoteSession() {
       }
 
       try {
-        await createQuote({ inputText: trimmed });
+        await createQuote({
+          propertyId: propertyId as Id<"properties">,
+          inputText: trimmed,
+        });
       } catch (error) {
         setLocalFailure({
           prompt: trimmed,
@@ -352,7 +364,7 @@ export function useQuoteSession() {
         setSubmitting(false);
       }
     },
-    [createQuote, directMode, loading, updateDirectTurn],
+    [createQuote, directMode, loading, propertyId, updateDirectTurn],
   );
 
   return { messages, loading, submit };

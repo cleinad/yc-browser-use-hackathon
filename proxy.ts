@@ -1,6 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(["/chat(.*)"]);
+const isProtectedRoute = createRouteMatcher([
+  "/home(.*)",
+  "/properties(.*)",
+  "/chat(.*)",
+]);
 
 // Next.js 16+: entry point is proxy.ts, not middleware.ts
 export default clerkMiddleware(async (auth, req) => {

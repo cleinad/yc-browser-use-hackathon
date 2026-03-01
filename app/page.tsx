@@ -33,7 +33,7 @@ export default function Home() {
 
         <div className="mt-10 flex items-center gap-4">
           <Link
-            href="/chat"
+            href="/home"
             className="inline-flex items-center rounded-lg bg-[var(--accent-primary)] px-6 py-2.5 text-sm font-medium text-[var(--bg-base)] transition hover:bg-[var(--accent-primary-hover)]"
           >
             Open Workspace

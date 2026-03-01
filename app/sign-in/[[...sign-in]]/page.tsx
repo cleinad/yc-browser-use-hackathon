@@ -15,7 +15,7 @@ export default function SignInPage() {
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 pb-16">
-        <SignIn signUpUrl="/sign-up" />
+        <SignIn signUpUrl="/sign-up" forceRedirectUrl="/home" fallbackRedirectUrl="/home" />
       </main>
     </div>
   );
