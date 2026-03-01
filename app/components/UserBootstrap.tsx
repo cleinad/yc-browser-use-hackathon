@@ -11,7 +11,11 @@ export function UserBootstrap() {
   const attemptedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated || isLoading || me !== null || attemptedRef.current) {
+    if (!isAuthenticated || isLoading || me === undefined || attemptedRef.current) {
+      return;
+    }
+
+    if (me !== null) {
       return;
     }
 

@@ -73,3 +73,6 @@ docs/MEGAPLAN.md
 docs/implementation-plan.md
 docs/overview.md
 hero.ts
+
+# clerk configuration (can include secrets)
+/.clerk/

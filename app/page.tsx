@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AuthControls } from "./components/AuthControls";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 export default function Home() {
   return (
@@ -9,13 +11,9 @@ export default function Home() {
             Proquote
           </span>
         </div>
-        <nav className="flex items-center gap-6">
-          <span className="text-sm text-[var(--fg-muted)] hover:text-[var(--fg-base)] transition cursor-pointer">
-            Sign in
-          </span>
-          <span className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] px-3 py-1.5 text-sm font-medium text-[var(--fg-base)] cursor-pointer hover:bg-[var(--bg-surface)] transition">
-            Sign up
-          </span>
+        <nav className="flex items-center gap-3">
+          <ThemeToggle />
+          <AuthControls />
         </nav>
       </header>
 

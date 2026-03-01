@@ -1,38 +1,36 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { useQuoteSession } from "./useQuoteSession";
 import MessageList from "../components/MessageList";
 import ChatInput from "../components/ChatInput";
 import CheckoutPanel from "../components/checkout/CheckoutPanel";
+import { AuthControls } from "../components/AuthControls";
+import { ThemeToggle } from "../components/ThemeToggle";
 import type { CheckoutStrategy, PurchasePlan } from "../types";
 
 export default function ChatPage() {
   const { messages, loading, submit } = useQuoteSession();
   const isEmpty = messages.length === 0;
 
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [dismissedPlanKey, setDismissedPlanKey] = useState<string | null>(null);
   const [strategy, setStrategy] = useState<CheckoutStrategy>("cheapest");
 
   // Derive the latest purchase plan from messages
-  const latestPlan = useMemo<PurchasePlan | null>(() => {
+  const latestPlanEntry: { plan: PurchasePlan | null; key: string | null } = (() => {
     for (let i = messages.length - 1; i >= 0; i--) {
       const msg = messages[i];
-      if (msg.role === "agent" && msg.plan) return msg.plan;
+      if (msg.role === "agent" && msg.plan) {
+        return { plan: msg.plan, key: `${i}` };
+      }
     }
-    return null;
-  }, [messages]);
+    return { plan: null, key: null };
+  })();
+  const latestPlan = latestPlanEntry.plan;
 
-  // Auto-open panel when a new plan arrives
-  const [prevPlan, setPrevPlan] = useState<PurchasePlan | null>(null);
-  useEffect(() => {
-    if (latestPlan && latestPlan !== prevPlan) {
-      setPanelOpen(true);
-    }
-    setPrevPlan(latestPlan);
-  }, [latestPlan, prevPlan]);
+  const panelOpen = !!latestPlan && latestPlanEntry.key !== dismissedPlanKey;
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
@@ -42,17 +40,15 @@ export default function ChatPage() {
             Proquote
           </span>
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-3">
           <Link
             href="/"
             className="text-sm text-[var(--fg-muted)] hover:text-[var(--fg-base)] transition"
           >
             Home
           </Link>
-          <span className="text-sm text-[var(--fg-muted)]">Sign in</span>
-          <span className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] px-3 py-1.5 text-sm font-medium text-[var(--fg-base)]">
-            Sign up
-          </span>
+          <ThemeToggle />
+          <AuthControls />
         </nav>
       </header>
 
@@ -78,7 +74,7 @@ export default function ChatPage() {
                 <div className="flex-1 min-h-0 overflow-hidden">
                   <MessageList
                     messages={messages}
-                    onOpenPanel={() => setPanelOpen(true)}
+                    onOpenPanel={() => setDismissedPlanKey(null)}
                   />
                 </div>
                 <div className="border-t border-[var(--border-default)] bg-[var(--bg-surface)]">
@@ -95,7 +91,7 @@ export default function ChatPage() {
               plan={latestPlan}
               strategy={strategy}
               onStrategyChange={setStrategy}
-              onClose={() => setPanelOpen(false)}
+              onClose={() => setDismissedPlanKey(latestPlanEntry.key)}
             />
           )}
         </AnimatePresence>

@@ -3,7 +3,7 @@
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { UserBootstrap } from "./components/UserBootstrap";
+import { UserBootstrap } from "@/app/components/UserBootstrap";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 if (!convexUrl) {
