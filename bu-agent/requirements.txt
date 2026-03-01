@@ -1,0 +1,9 @@
+browser-use
+openai
+pydantic
+python-dotenv
+httpx
+aiohttp
+fastapi
+uvicorn[standard]
+sse-starlette
