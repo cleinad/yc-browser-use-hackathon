@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-28)
 
 **Core value:** From "toilet seat broken" to multi-vendor quotes with procurement action in under 3 minutes — with a judge-friendly Proof Pack that makes every quote verifiable.
-**Current focus:** Phase 1 — Project Scaffolding
+**Current focus:** Phase 2 — House Dashboard + House Detail (Phase 1 complete; Vercel setup pending before first Phase 2 push)
 
 ## Current Position
 
 Phase: 1 of 6 (Project Scaffolding)
-Plan: 2 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-28 — Completed 01-02: Vercel deployment config (vercel.json + .vercelignore; awaiting human Vercel dashboard setup)
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Phase 1 complete (Vercel dashboard setup deferred — manual step pending)
+Last activity: 2026-02-28 — Completed 01-02: vercel.json + .vercelignore committed; Vercel dashboard import deferred by user
 
 Progress: [██░░░░░░░░] 17%
 
@@ -53,7 +53,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+- [01-02 deferred]: Complete Vercel dashboard setup before first Phase 2 push to main — import repo at vercel.com/new (Root Directory = `/`), add NEXT_PUBLIC_CONVEX_URL env var, verify production URL
 
 ### Blockers/Concerns
 
@@ -62,5 +62,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 01-02-PLAN.md — vercel.json + .vercelignore created and committed (65929ee); awaiting human Vercel dashboard setup (checkpoint:human-verify)
+Stopped at: Completed 01-02-PLAN.md — Phase 1 done; Vercel config committed, dashboard setup deferred; ready for Phase 2
 Resume file: None

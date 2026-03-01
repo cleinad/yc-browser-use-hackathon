@@ -12,8 +12,7 @@ provides:
   - vercel.json with framework=nextjs, installCommand, buildCommand, outputDirectory
   - .vercelignore excluding bu-agent/ Python backend from Vercel bundles
   - Verified production build (npm run build passes cleanly)
-  - CI/CD pipeline: GitHub main branch auto-deploys to Vercel
-  - Production URL with Convex connected (NEXT_PUBLIC_CONVEX_URL in Vercel env vars)
+  - DEFERRED: Vercel dashboard import + NEXT_PUBLIC_CONVEX_URL env var setup (manual, to be done before Phase 2 pushes)
 affects:
   - 02-repair-intake
   - 03-quote-engine
@@ -52,14 +51,14 @@ completed: 2026-02-28
 
 # Phase 1 Plan 02: Vercel Deployment Configuration Summary
 
-**vercel.json + .vercelignore committed, build verified locally, Vercel connected to GitHub with NEXT_PUBLIC_CONVEX_URL set for production CI/CD**
+**vercel.json + .vercelignore committed, local build verified; Vercel dashboard setup deferred (manual step pending before Phase 2)**
 
 ## Performance
 
-- **Duration:** ~1 min automated (Task 1) + human Vercel dashboard setup
+- **Duration:** ~1 min automated (Task 1); checkpoint skipped by user
 - **Started:** 2026-03-01T01:51:40Z
-- **Completed:** 2026-03-01T01:52:16Z
-- **Tasks:** 1 auto + 1 checkpoint (human-verify)
+- **Completed:** 2026-03-01T01:53:00Z
+- **Tasks:** 1 auto + 1 checkpoint (skipped/deferred)
 - **Files modified:** 2
 
 ## Accomplishments
@@ -67,7 +66,7 @@ completed: 2026-02-28
 - Created vercel.json with explicit Next.js framework config (no rootDirectory — set in dashboard)
 - Created .vercelignore to exclude bu-agent/ Python backend and docs from Vercel bundles
 - Verified production build locally: `npm run build` — "Compiled successfully", 4/4 static pages, no TypeScript errors
-- Human verification checkpoint: Vercel project imported, NEXT_PUBLIC_CONVEX_URL added, production URL confirmed working
+- Vercel dashboard setup (GitHub import + NEXT_PUBLIC_CONVEX_URL env var) deferred — user will complete manually
 
 ## Task Commits
 
@@ -91,23 +90,29 @@ None - plan executed exactly as written.
 
 ## Issues Encountered
 
-None during automated task. Human verification checkpoint required standard Vercel dashboard setup as planned.
+None during automated task. The human-verify checkpoint (Vercel dashboard setup) was skipped by the user — will be completed manually before or during Phase 2.
 
 ## User Setup Required
 
-**Vercel dashboard configuration required.** The human-verify checkpoint covers:
-1. Import GitHub repo to Vercel (vercel.com/new → Import Git Repository → select repo → Root Directory = `/`)
-2. Verify Framework Preset = Next.js
-3. Add `NEXT_PUBLIC_CONVEX_URL` = `https://earnest-puffin-59.convex.cloud` in Project → Settings → Environment Variables (Production + Preview + Development)
-4. Trigger deployment (Redeploy or `git push origin main`)
-5. Verify production URL shows: dark background + "Connected. Houses in DB: 0" + styled indigo button
+**Vercel dashboard setup is PENDING.** Complete these steps before pushing Phase 2 code:
+
+1. Go to https://vercel.com/new → "Import Git Repository" → select `yc-browser-use-hackathon`
+2. Set "Root Directory" to `/` (the repo root — CRITICAL, do not leave as auto-detected)
+3. Verify "Framework Preset" = Next.js
+4. Click "Deploy" (first deploy may fail without env var — that's OK)
+5. Go to Project → Settings → Environment Variables → Add:
+   - `NEXT_PUBLIC_CONVEX_URL` = `https://earnest-puffin-59.convex.cloud`
+   - Set for: Production, Preview, and Development
+6. Redeploy (or push a commit to main)
+7. Verify production URL shows: dark background + "Connected. Houses in DB: 0" + styled indigo button
+8. Confirm: Project Settings → Git → Production Branch = "main" (auto-deploy on push)
 
 ## Next Phase Readiness
 
-- CI/CD pipeline established — every push to main auto-deploys during the hackathon
-- Production URL available for judges to view live progress
-- Convex connected in production via NEXT_PUBLIC_CONVEX_URL env var
-- Phase 2 (Repair Intake) can proceed — pushes to main will auto-deploy
+- vercel.json and .vercelignore are committed — Vercel will pick up the correct config on import
+- Local build passes cleanly — production build is known-good
+- Phase 2 code can be written now; Vercel setup should be completed before the first Phase 2 push to main
+- Once Vercel is connected, all subsequent pushes auto-deploy (no manual steps during the hackathon)
 
 ---
 *Phase: 01-project-scaffolding*
