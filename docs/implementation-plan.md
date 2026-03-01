@@ -1,4 +1,4 @@
-# PartSource MVP Implementation Plan
+# Proquote MVP Implementation Plan
 
 ## Goal
 

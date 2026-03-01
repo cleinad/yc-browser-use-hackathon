@@ -7,7 +7,7 @@
 ```
 yc-browser-use-hackathon/
 ├── bu-agent/                    # Python backend: browser-use agent orchestration
-│   ├── partsource/              # Core orchestration package
+│   ├── proquote/              # Core orchestration package
 │   │   ├── __init__.py          # Package exports
 │   │   ├── models.py            # Data models (dataclasses)
 │   │   ├── orchestrator.py      # In-process async orchestrator
@@ -26,7 +26,7 @@ yc-browser-use-hackathon/
 
 ## Directory Purposes
 
-**`bu-agent/partsource/`:**
+**`bu-agent/proquote/`:**
 - Purpose: Core Python package for browser-use agent orchestration
 - Contains: Dataclass models, two orchestrator implementations (in-process and process-isolated), worker CLI
 - Key files: `models.py` (all data types), `orchestrator.py` (primary orchestrator), `process_orchestrator.py` (isolated variant)
@@ -42,7 +42,7 @@ yc-browser-use-hackathon/
 ## Key File Locations
 
 **Entry Points:**
-- `bu-agent/partsource/worker_subagent.py`: Worker process entry point (run via `python -m partsource.worker_subagent`)
+- `bu-agent/proquote/worker_subagent.py`: Worker process entry point (run via `python -m proquote.worker_subagent`)
 - `bu-agent/tests/run_weather_fanout.py`: Demo/test entry point
 
 **Configuration:**
@@ -50,9 +50,9 @@ yc-browser-use-hackathon/
 - `.env` (not committed): Environment variables including `BROWSER_USE_API_KEY`
 
 **Core Logic:**
-- `bu-agent/partsource/models.py`: All data models (`SubAgentJob`, `SubAgentResult`, `StatusEvent`, `OrchestratorConfig`)
-- `bu-agent/partsource/orchestrator.py`: `BrowserUseSubAgent` (adapter) + `SubAgentOrchestrator` (fan-out coordinator)
-- `bu-agent/partsource/process_orchestrator.py`: `ProcessSubAgentOrchestrator` (spawns isolated worker processes)
+- `bu-agent/proquote/models.py`: All data models (`SubAgentJob`, `SubAgentResult`, `StatusEvent`, `OrchestratorConfig`)
+- `bu-agent/proquote/orchestrator.py`: `BrowserUseSubAgent` (adapter) + `SubAgentOrchestrator` (fan-out coordinator)
+- `bu-agent/proquote/process_orchestrator.py`: `ProcessSubAgentOrchestrator` (spawns isolated worker processes)
 
 **Documentation:**
 - `MEGAPLAN.md`: Authoritative PRD -- defines all P0-P3 features, data model, routes, team responsibilities
@@ -66,7 +66,7 @@ yc-browser-use-hackathon/
 - Documentation: `UPPERCASE.md` for top-level docs, `lowercase.md` for subdirectory docs
 
 **Directories:**
-- `snake_case` for Python packages (e.g., `partsource`)
+- `snake_case` for Python packages (e.g., `proquote`)
 - `lowercase` for other directories (e.g., `docs`, `tests`)
 
 **Classes:**
@@ -106,7 +106,7 @@ yc-browser-use-hackathon/
 - MEGAPLAN.md specifies Convex -- add `convex/` directory for schema/queries/mutations
 
 **New Backend Feature:**
-- Add to `bu-agent/partsource/` for orchestration logic
+- Add to `bu-agent/proquote/` for orchestration logic
 - Add API server (FastAPI proposed in `docs/implementation-plan.md`) likely at `bu-agent/api/server.py`
 - Add retailer adapters at `bu-agent/retailers/` (proposed but not created)
 
@@ -115,7 +115,7 @@ yc-browser-use-hackathon/
 - Frontend tests: co-locate with components or in `__tests__/` directories
 
 **Utilities:**
-- Backend shared helpers: `bu-agent/partsource/` (extend existing package)
+- Backend shared helpers: `bu-agent/proquote/` (extend existing package)
 - Frontend shared helpers: `lib/` directory at project root
 
 ## Special Directories

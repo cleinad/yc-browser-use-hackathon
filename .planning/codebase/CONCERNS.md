@@ -12,7 +12,7 @@
 
 **No API server — backend has no HTTP layer:**
 - Issue: The planned API endpoints (`POST /api/triage`, `POST /api/bom`, `POST /api/runQuotes`, `GET /quote/{id}/events` SSE) do not exist. Only the raw Python orchestrator library and a CLI test script exist.
-- Files: `bu-agent/partsource/orchestrator.py`, `bu-agent/partsource/process_orchestrator.py`
+- Files: `bu-agent/proquote/orchestrator.py`, `bu-agent/proquote/process_orchestrator.py`
 - Why: Initial implementation focused on proving the browser-use orchestration pattern
 - Impact: Frontend cannot communicate with the backend. No REST/SSE endpoints for the UI to call.
 - Fix approach: Add a FastAPI server at `bu-agent/api/server.py` per the layout in `docs/implementation-plan.md`. Wire endpoints to orchestrator. Add SSE streaming for live progress updates.
@@ -24,15 +24,15 @@
 - Fix approach: Initialize a Convex project, define schema matching MEGAPLAN.md data model, add queries/mutations for all CRUD operations.
 
 **Proposed project layout not implemented:**
-- Issue: `docs/implementation-plan.md` specifies a structured layout (`bu-agent/api/`, `bu-agent/orchestrator/`, `bu-agent/retailers/`, `bu-agent/models/`) but the actual code uses a flat `bu-agent/partsource/` package with only 4 files.
-- Files: `bu-agent/partsource/__init__.py`, `bu-agent/partsource/models.py`, `bu-agent/partsource/orchestrator.py`, `bu-agent/partsource/process_orchestrator.py`, `bu-agent/partsource/worker_subagent.py`
+- Issue: `docs/implementation-plan.md` specifies a structured layout (`bu-agent/api/`, `bu-agent/orchestrator/`, `bu-agent/retailers/`, `bu-agent/models/`) but the actual code uses a flat `bu-agent/proquote/` package with only 4 files.
+- Files: `bu-agent/proquote/__init__.py`, `bu-agent/proquote/models.py`, `bu-agent/proquote/orchestrator.py`, `bu-agent/proquote/process_orchestrator.py`, `bu-agent/proquote/worker_subagent.py`
 - Why: Rapid prototyping diverged from the planned architecture
 - Impact: Missing key modules: parser (NL to structured parts), planner (retailer selection), aggregator (result normalization), optimizer (purchase plan ranking). These are all documented in `docs/implementation-plan.md` but not implemented.
-- Fix approach: Either refactor `partsource/` to match the planned layout, or extend it with the missing modules (parser, planner, aggregator, optimizer) while keeping the working orchestration code.
+- Fix approach: Either refactor `proquote/` to match the planned layout, or extend it with the missing modules (parser, planner, aggregator, optimizer) while keeping the working orchestration code.
 
 **No dependency manifest:**
 - Issue: No `pyproject.toml`, `requirements.txt`, or `setup.py` exists for the Python backend. Dependencies (`browser-use`, `python-dotenv`) are imported but not declared.
-- Files: `bu-agent/partsource/orchestrator.py` (imports `browser_use`), `bu-agent/partsource/worker_subagent.py` (imports `dotenv`)
+- Files: `bu-agent/proquote/orchestrator.py` (imports `browser_use`), `bu-agent/proquote/worker_subagent.py` (imports `dotenv`)
 - Why: Early hackathon setup, dependencies installed manually
 - Impact: Cannot reliably reproduce the environment. New contributors cannot install dependencies without reading source imports.
 - Fix approach: Add `bu-agent/pyproject.toml` with all dependencies pinned: `browser-use`, `python-dotenv`, plus dev dependencies for testing.
@@ -48,7 +48,7 @@
 **BrowserUseSubAgent success detection is fragile:**
 - Symptoms: A job may be marked `success=True` even when the agent did not extract useful data
 - Trigger: Agent completes without errors but returns empty or irrelevant content
-- Files: `bu-agent/partsource/orchestrator.py` (lines 50-53), `bu-agent/partsource/worker_subagent.py` (lines 77-79)
+- Files: `bu-agent/proquote/orchestrator.py` (lines 50-53), `bu-agent/proquote/worker_subagent.py` (lines 77-79)
 - Workaround: None currently
 - Root cause: Success is determined by `bool(final_result and final_result.strip())` OR `history.is_done() and not history.has_errors()`. Neither checks whether the result contains valid structured data (price, availability, URL).
 
@@ -56,13 +56,13 @@
 
 **Environment file loading uses hardcoded relative path:**
 - Risk: `worker_subagent.py` loads `.env` from `Path(__file__).resolve().parents[1]` which resolves to `bu-agent/.env`. If the worker is invoked from a different working directory or symlinked, it could load the wrong env file or fail silently.
-- Files: `bu-agent/partsource/worker_subagent.py` (line 140)
+- Files: `bu-agent/proquote/worker_subagent.py` (line 140)
 - Current mitigation: `.gitignore` excludes `.env` and `.env.*` files
 - Recommendations: Validate that required env vars (e.g., `BROWSER_USE_API_KEY`) are present after loading; fail fast with a clear error if missing.
 
 **No input validation or sanitization on agent tasks:**
 - Risk: User-provided text is passed directly as `job.task` to browser-use agents without sanitization. A malicious input could craft prompt injection attacks against the LLM agent.
-- Files: `bu-agent/partsource/orchestrator.py` (line 39, `task=job.task`), `bu-agent/partsource/worker_subagent.py` (line 64, `task=str(job["task"])`)
+- Files: `bu-agent/proquote/orchestrator.py` (line 39, `task=job.task`), `bu-agent/proquote/worker_subagent.py` (line 64, `task=str(job["task"])`)
 - Current mitigation: None
 - Recommendations: Add input validation and length limits in the future API layer. Sanitize or template user input before passing to browser-use agents.
 
@@ -75,21 +75,21 @@
 
 **Browser-use agent startup overhead:**
 - Problem: Each sub-agent spawns a full Chromium browser instance. In process-isolation mode (`ProcessSubAgentOrchestrator`), each also spawns a new Python process.
-- Files: `bu-agent/partsource/process_orchestrator.py` (line 186, `asyncio.create_subprocess_exec`), `bu-agent/partsource/orchestrator.py` (line 38-43, `Agent` creation)
+- Files: `bu-agent/proquote/process_orchestrator.py` (line 186, `asyncio.create_subprocess_exec`), `bu-agent/proquote/orchestrator.py` (line 38-43, `Agent` creation)
 - Measurement: Default timeout is 180 seconds per agent. With 5+ parallel agents, resource consumption is substantial.
 - Cause: Each agent needs its own browser profile, temp directory, and LLM client instance
 - Improvement path: Consider browser pool reuse for sequential tasks on the same vendor. For the hackathon, keep concurrency low (`max_subagents=3-4`) and optimize task prompts to reduce step count.
 
 **No result caching or deduplication:**
 - Problem: Identical searches across sessions re-run full browser automation every time
-- Files: `bu-agent/partsource/orchestrator.py` (no caching logic exists)
+- Files: `bu-agent/proquote/orchestrator.py` (no caching logic exists)
 - Cause: No persistence layer to store and retrieve previous results
 - Improvement path: Add a quote cache keyed by (part_spec, vendor, date) once the database layer exists. Return cached results for identical queries within a configurable TTL.
 
 ## Fragile Areas
 
 **Orchestrator-to-worker contract (process isolation mode):**
-- Files: `bu-agent/partsource/process_orchestrator.py` (lines 155-166, job serialization), `bu-agent/partsource/worker_subagent.py` (lines 31-40, job deserialization)
+- Files: `bu-agent/proquote/process_orchestrator.py` (lines 155-166, job serialization), `bu-agent/proquote/worker_subagent.py` (lines 31-40, job deserialization)
 - Why fragile: The contract between orchestrator and worker is implicit JSON with no schema validation. The orchestrator writes `{"job_id", "label", "task", "metadata"}` to a temp file; the worker reads and validates manually. Any field addition requires synchronized changes in both files.
 - Common failures: Adding a new field to `SubAgentJob` without updating `_parse_worker_result` or `load_job` silently drops the field
 - Safe modification: Add a shared Pydantic model or use `dataclasses.asdict()` / `dacite` for round-trip serialization
@@ -156,7 +156,7 @@
 
 **Real-time progress streaming (SSE):**
 - Problem: The `StatusEvent` system exists in the orchestrator but has no HTTP transport. The planned SSE endpoint (`GET /quote/{id}/events`) does not exist.
-- Files: `bu-agent/partsource/models.py` (StatusEvent dataclass), `bu-agent/partsource/orchestrator.py` (status_handler callback)
+- Files: `bu-agent/proquote/models.py` (StatusEvent dataclass), `bu-agent/proquote/orchestrator.py` (status_handler callback)
 - Current workaround: Status events print to stdout in the test script
 - Blocks: Frontend cannot show live swarm progress panel
 - Implementation complexity: Low — wire existing `status_handler` callback to FastAPI SSE endpoint
@@ -175,14 +175,14 @@
 
 **No automated tests of any kind:**
 - What's not tested: Everything — orchestrator logic, model serialization, worker process communication, error handling, retry logic
-- Files: `bu-agent/partsource/orchestrator.py`, `bu-agent/partsource/process_orchestrator.py`, `bu-agent/partsource/worker_subagent.py`, `bu-agent/partsource/models.py`
+- Files: `bu-agent/proquote/orchestrator.py`, `bu-agent/proquote/process_orchestrator.py`, `bu-agent/proquote/worker_subagent.py`, `bu-agent/proquote/models.py`
 - Risk: Any code change could introduce regressions without detection. The orchestrator's retry logic, timeout handling, and error propagation are untested.
 - Priority: High
 - Difficulty to test: Low for unit tests (models, serialization, optimizer logic). Medium for integration tests (requires mocking browser-use Agent). The existing `StatusHandler` callback pattern makes orchestrator testing straightforward with mock handlers.
 
 **No test for partial failure scenarios:**
 - What's not tested: What happens when 2 of 5 agents fail, when all agents timeout, when the worker process crashes
-- Files: `bu-agent/partsource/orchestrator.py` (retry logic lines 136-195), `bu-agent/partsource/process_orchestrator.py` (process failure handling lines 139-300)
+- Files: `bu-agent/proquote/orchestrator.py` (retry logic lines 136-195), `bu-agent/proquote/process_orchestrator.py` (process failure handling lines 139-300)
 - Risk: Partial failures could silently corrupt results or hang indefinitely
 - Priority: High
 - Difficulty to test: Medium — requires mocking browser-use to simulate failures

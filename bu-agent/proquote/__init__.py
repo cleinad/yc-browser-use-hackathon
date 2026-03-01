@@ -1,4 +1,4 @@
-"""PartSource orchestration package."""
+"""Proquote orchestration package."""
 
 from .models import OrchestratorConfig, StatusEvent, SubAgentJob, SubAgentResult
 from .orchestrator import BrowserUseSubAgent, SubAgentOrchestrator

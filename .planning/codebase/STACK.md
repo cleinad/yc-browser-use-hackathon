@@ -5,7 +5,7 @@
 ## Languages
 
 **Primary (Backend — exists):**
-- Python 3.12 - Backend agent orchestrator (`bu-agent/partsource/`)
+- Python 3.12 - Backend agent orchestrator (`bu-agent/proquote/`)
 
 **Primary (Frontend — planned, not yet created):**
 - TypeScript - Next.js frontend (per `MEGAPLAN.md` and `docs/overview.md`)
@@ -26,9 +26,9 @@
 **Backend (exists):**
 - `browser-use` SDK — Web agent framework for spawning browser-based sub-agents
   - Imports: `Agent`, `BrowserProfile`, `ChatBrowserUse` from `browser_use`
-  - Used in: `bu-agent/partsource/orchestrator.py`, `bu-agent/partsource/worker_subagent.py`
+  - Used in: `bu-agent/proquote/orchestrator.py`, `bu-agent/proquote/worker_subagent.py`
 - `python-dotenv` — Environment variable loading from `.env`
-  - Used in: `bu-agent/partsource/worker_subagent.py`, `bu-agent/tests/run_weather_fanout.py`
+  - Used in: `bu-agent/proquote/worker_subagent.py`, `bu-agent/tests/run_weather_fanout.py`
 
 **Frontend (planned, not yet scaffolded):**
 - Next.js — React framework for UI routes
@@ -80,7 +80,7 @@
 
 ## Current State Summary
 
-The codebase is in **early backend-only** state. The `bu-agent/partsource/` package contains a working orchestrator that can fan out browser-use sub-agents in parallel (tested with a weather demo). **No frontend code exists yet.** The MEGAPLAN.md specifies Next.js + Convex as the frontend/backend stack, with multiple sponsor integrations planned.
+The codebase is in **early backend-only** state. The `bu-agent/proquote/` package contains a working orchestrator that can fan out browser-use sub-agents in parallel (tested with a weather demo). **No frontend code exists yet.** The MEGAPLAN.md specifies Next.js + Convex as the frontend/backend stack, with multiple sponsor integrations planned.
 
 **Frontend scaffolding is the immediate priority** — nothing has been created yet for the Next.js app, Convex schema, or any UI components.
 

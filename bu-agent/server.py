@@ -13,10 +13,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
-from partsource.controller import run
-from partsource.models import StatusEvent
+from proquote.controller import run
+from proquote.models import StatusEvent
 
-app = FastAPI(title="PartSource API")
+app = FastAPI(title="Proquote API")
 
 app.add_middleware(
     CORSMiddleware,

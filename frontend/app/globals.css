@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  color-scheme: light;
+  --bg-base: #faf9f7;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f3f2ef;
+  --fg-base: #1a1917;
+  --fg-muted: #6b6860;
+  --fg-disabled: #b0afa9;
+  --border-default: #e5e4df;
+  --accent-primary: #1f1d1a;
+  --accent-primary-hover: #2c2924;
+  --accent-amber: #c97b30;
+  --accent-jade: #3d7a5e;
+  --accent-destructive: #b94040;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+    --bg-base: #111110;
+    --bg-surface: #191917;
+    --bg-subtle: #23231f;
+    --fg-base: #f1efea;
+    --fg-muted: #b9b3a7;
+    --fg-disabled: #8e887d;
+    --border-default: #35332d;
+    --accent-primary: #f1efea;
+    --accent-primary-hover: #dfddd7;
+    --accent-amber: #d1904f;
+    --accent-jade: #6fa287;
+    --accent-destructive: #d06f6f;
   }
 }
 
+@theme inline {
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-fg-base: var(--fg-base);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-border-default: var(--border-default);
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-primary-hover: var(--accent-primary-hover);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-jade: var(--accent-jade);
+  --color-accent-destructive: var(--accent-destructive);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--fg-base);
+  font-family: Inter, Geist, system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-amber) 28%, transparent);
 }
