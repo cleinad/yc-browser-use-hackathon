@@ -182,6 +182,9 @@ class ProcessSubAgentOrchestrator:
                 cmd.append("--use-vision")
             if not self._config.headless:
                 cmd.append("--show-browser")
+            if self._config.use_cloud:
+                cmd.append("--use-cloud")
+                cmd.extend(["--cloud-proxy-country", self._config.cloud_proxy_country_code])
 
             process = await asyncio.create_subprocess_exec(
                 *cmd,

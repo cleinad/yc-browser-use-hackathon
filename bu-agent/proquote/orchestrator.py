@@ -4,7 +4,7 @@ import asyncio
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import replace
 
-from browser_use import Agent, BrowserProfile, ChatBrowserUse
+from browser_use import Agent, Browser, BrowserProfile, ChatBrowserUse
 
 from .models import OrchestratorConfig, StatusEvent, SubAgentJob, SubAgentResult, utc_now
 
@@ -21,12 +21,16 @@ class BrowserUseSubAgent:
         timeout_sec: int = 180,
         use_vision: bool = False,
         headless: bool = True,
+        use_cloud: bool = True,
+        cloud_proxy_country_code: str = "us",
         llm_factory: Callable[[], ChatBrowserUse] | None = None,
     ) -> None:
         self._max_steps = max_steps
         self._timeout_sec = timeout_sec
         self._use_vision = use_vision
         self._headless = headless
+        self._use_cloud = use_cloud
+        self._cloud_proxy_country_code = cloud_proxy_country_code
         self._llm_factory = llm_factory or (lambda: ChatBrowserUse(model="bu-latest"))
 
     async def run(self, job: SubAgentJob) -> SubAgentResult:
@@ -35,12 +39,24 @@ class BrowserUseSubAgent:
         final_result: str | None = None
         success = False
 
-        agent = Agent(
-            task=job.task,
-            llm=self._llm_factory(),
-            browser_profile=BrowserProfile(headless=self._headless, keep_alive=False),
-            use_vision=self._use_vision,
-        )
+        if self._use_cloud:
+            browser = Browser(
+                use_cloud=True,
+                cloud_proxy_country_code=self._cloud_proxy_country_code,
+            )
+            agent = Agent(
+                task=job.task,
+                llm=self._llm_factory(),
+                browser=browser,
+                use_vision=self._use_vision,
+            )
+        else:
+            agent = Agent(
+                task=job.task,
+                llm=self._llm_factory(),
+                browser_profile=BrowserProfile(headless=self._headless, keep_alive=False),
+                use_vision=self._use_vision,
+            )
         try:
             history = await asyncio.wait_for(
                 agent.run(max_steps=self._max_steps),
@@ -90,6 +106,8 @@ class SubAgentOrchestrator:
             timeout_sec=self._config.per_agent_timeout_sec,
             use_vision=self._config.use_vision,
             headless=self._config.headless,
+            use_cloud=self._config.use_cloud,
+            cloud_proxy_country_code=self._config.cloud_proxy_country_code,
         )
 
     async def run_jobs(

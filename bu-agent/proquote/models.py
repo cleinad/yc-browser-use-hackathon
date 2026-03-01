@@ -22,6 +22,8 @@ class OrchestratorConfig:
     retries: int = 1
     use_vision: bool = False
     headless: bool = True
+    use_cloud: bool = True
+    cloud_proxy_country_code: str = "us"
 
 
 @dataclass(slots=True)
