@@ -1,5 +1,7 @@
 "use client";
 
+import RetailerBadge from "../RetailerBadge";
+
 interface CheckoutFooterProps {
   retailerTotals: Map<string, number>;
 }
@@ -17,7 +19,7 @@ export default function CheckoutFooter({
           key={retailer}
           className="flex items-center justify-between text-sm"
         >
-          <span className="text-[var(--fg-muted)]">{retailer}</span>
+          <RetailerBadge retailer={retailer} size="sm" />
           <span className="font-medium text-[var(--fg-base)]">
             USD {total.toFixed(2)}
           </span>

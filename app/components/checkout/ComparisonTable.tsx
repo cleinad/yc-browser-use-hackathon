@@ -2,6 +2,7 @@
 
 import type { ComparisonTable as ComparisonTableType } from "../../types";
 import ComparisonRowCell from "./ComparisonRowCell";
+import RetailerBadge from "../RetailerBadge";
 
 interface ComparisonTableProps {
   table: ComparisonTableType;
@@ -21,7 +22,7 @@ export default function ComparisonTable({ table }: ComparisonTableProps) {
                 key={r}
                 className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[var(--fg-muted)]"
               >
-                {r}
+                <RetailerBadge retailer={r} size="md" />
               </th>
             ))}
           </tr>
