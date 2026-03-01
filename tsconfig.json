@@ -25,7 +25,13 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    // Explicitly declare which @types packages TypeScript includes globally.
+    // This prevents TypeScript from auto-including all @types/* packages
+    // (like the transitive @types/estree pulled in by ESLint), which can
+    // cause "Cannot find type definition file" errors for packages that
+    // aren't meant to be used as standalone global type libraries.
+    "types": ["node", "react", "react-dom"]
   },
   "include": [
     "next-env.d.ts",
