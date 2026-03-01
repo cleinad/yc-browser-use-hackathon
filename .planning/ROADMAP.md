@@ -31,7 +31,7 @@ Six phases deliver the complete frontend for ProcureSwarm: a hackathon-ready, ju
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold Next.js 15 + HeroUI (Tailwind v4) + Convex: bootstrap project, configure dark theme, wire providers, init Convex with houses schema, build verification page
+- [x] 01-01-PLAN.md — Scaffold Next.js 15 + HeroUI (Tailwind v4) + Convex: bootstrap project, configure dark theme, wire providers, init Convex with houses schema, build verification page
 - [ ] 01-02-PLAN.md — Configure Vercel deployment: add vercel.json + .vercelignore, connect GitHub repo, set NEXT_PUBLIC_CONVEX_URL in Vercel dashboard, verify production URL
 
 ### Phase 2: House Dashboard + House Detail
@@ -124,7 +124,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Scaffolding | 0/2 | Planned | - |
+| 1. Project Scaffolding | 1/2 | In progress | - |
 | 2. House Dashboard + House Detail | 0/2 | Not started | - |
 | 3. Problem Intake + BOM Display | 0/3 | Not started | - |
 | 4. Live Swarm Panel | 0/2 | Not started | - |

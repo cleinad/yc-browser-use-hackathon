@@ -9,9 +9,9 @@
 
 ### Project Setup
 
-- [ ] **SETUP-01**: Next.js 15 App Router project scaffolded with TypeScript and Tailwind CSS
-- [ ] **SETUP-02**: Convex client configured and connected (real-time subscriptions working)
-- [ ] **SETUP-03**: shadcn/ui installed with base component library
+- [x] **SETUP-01**: Next.js 15 App Router project scaffolded with TypeScript and Tailwind CSS
+- [x] **SETUP-02**: Convex client configured and connected (real-time subscriptions working)
+- [x] **SETUP-03**: HeroUI installed with Tailwind v4 CSS-first plugin (dark theme, indigo primary)
 - [ ] **SETUP-04**: Vercel deployment configured (sponsor)
 
 ### House Dashboard
@@ -119,9 +119,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase 1 | Pending |
-| SETUP-02 | Phase 1 | Pending |
-| SETUP-03 | Phase 1 | Pending |
+| SETUP-01 | Phase 1 | Complete |
+| SETUP-02 | Phase 1 | Complete |
+| SETUP-03 | Phase 1 | Complete |
 | SETUP-04 | Phase 1 | Pending |
 | DASH-01 | Phase 2 | Pending |
 | DASH-02 | Phase 2 | Pending |
@@ -168,4 +168,4 @@
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 — ROADMAP.md created, traceability confirmed complete*
+*Last updated: 2026-02-28 — 01-01 complete: SETUP-01, SETUP-02, SETUP-03 marked complete*

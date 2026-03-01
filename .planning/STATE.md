@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 6 (Project Scaffolding)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-02-28 — Roadmap created; ready to begin Phase 1
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-28 — Completed 01-01: Next.js + HeroUI + Convex scaffold
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 8%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 16 min
+- Total execution time: 0.3 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-project-scaffolding | 1/2 | ~16 min | 16 min |
 
 **Recent Trend:**
-- Last 5 plans: none yet
+- Last 5 plans: 01-01 (16 min)
 - Trend: -
 
 *Updated after each plan completion*
@@ -44,7 +44,10 @@ Recent decisions affecting current work:
 
 - [Init]: Frontend-only scope — backend API contracts assumed stable; frontend uses Convex subscriptions exclusively
 - [Init]: Next.js 15 App Router at project root (not inside bu-agent/); Convex for DB + real-time reactivity
-- [Init]: shadcn/ui + Tailwind for fast, judge-friendly visuals
+- [01-01]: Use @plugin '../hero.ts' not './hero.ts' — path resolves relative to app/globals.css location (one level up to repo root)
+- [01-01]: ConvexReactClient fallback to placeholder URL during build to prevent static prerender crash when NEXT_PUBLIC_CONVEX_URL is undefined
+- [01-01]: "type": "module" in package.json required to eliminate ES module warning from Tailwind v4 processing hero.ts
+- [01-01]: Convex project named yc-browser-use-hackathon (deployment: earnest-puffin-59.convex.cloud)
 
 ### Pending Todos
 
@@ -52,11 +55,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: Convex schema must be deployed by backend owner before Phase 2 Convex subscriptions can return real data; Phase 2 can proceed with mock/seed data if needed
 - [Phase 4]: Real-time Swarm Panel depends on Runs table being written by the backend agent orchestrator; validate API contracts before Phase 4 execution
 
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Roadmap created — ROADMAP.md and STATE.md written; REQUIREMENTS.md traceability confirmed
+Stopped at: Completed 01-01-PLAN.md — Next.js 15 + HeroUI + Convex scaffold complete; stack verified at localhost:3000
 Resume file: None
