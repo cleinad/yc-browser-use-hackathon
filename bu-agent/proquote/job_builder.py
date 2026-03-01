@@ -5,7 +5,7 @@ from __future__ import annotations
 from .models import SubAgentJob
 from .schemas import PartSpec
 
-DEFAULT_RETAILERS = ["homedepot.com", "lowes.com", "Centre Hardware and Supply CO SF", "Cole Hardware"]
+DEFAULT_RETAILERS = ["homedepot.com", "lowes.com", "Cole Hardware"]
 
 TASK_TEMPLATE = """\
 Go to https://www.{retailer} and search for: {query}

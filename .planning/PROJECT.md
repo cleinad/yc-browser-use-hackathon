@@ -12,7 +12,7 @@ From "toilet seat broken" to multi-vendor quotes with procurement action in unde
 
 ### Validated
 
-- ✓ Python browser-use agent orchestrator — existing (`bu-agent/partsource/`)
+- ✓ Python browser-use agent orchestrator — existing (`bu-agent/proquote/`)
 - ✓ Multi-agent concurrent spawning pattern — existing (worker_subagent.py)
 
 ### Active
@@ -66,7 +66,7 @@ From "toilet seat broken" to multi-vendor quotes with procurement action in unde
 - **Hackathon:** Browser Use Web Agents Hackathon — judged on Impact (40%), Creativity (20%), Technical Difficulty (20%), Demo & Presentation (20%)
 - **Team split:** Frontend owner (this project) builds all Next.js UI. Backend owner builds Convex schema, API routes, Browser Use recipes, Agentmail.
 - **Demo flow (3 min):** Dashboard → house → create ticket → BOM appears → swarm runs → quote table → Proof Pack → RFQ email / cart
-- **Existing code:** Python browser-use orchestrator in `bu-agent/partsource/` — NOT touched by frontend work
+- **Existing code:** Python browser-use orchestrator in `bu-agent/proquote/` — NOT touched by frontend work
 - **Codebase map:** `.planning/codebase/` — full analysis available
 
 ## Constraints

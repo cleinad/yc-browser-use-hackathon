@@ -82,8 +82,8 @@ orchestrator = SubAgentOrchestrator(config=config, subagent_runner=custom_mock)
 
 **Candidate factory patterns already in the codebase:**
 - `build_jobs()` in `bu-agent/tests/run_weather_fanout.py` creates `SubAgentJob` lists
-- `build_bootstrap_failure()` in `bu-agent/partsource/worker_subagent.py` creates failure `SubAgentResult` objects
-- `result_to_dict()` in `bu-agent/partsource/models.py` serializes results
+- `build_bootstrap_failure()` in `bu-agent/proquote/worker_subagent.py` creates failure `SubAgentResult` objects
+- `result_to_dict()` in `bu-agent/proquote/models.py` serializes results
 
 ## Coverage
 
@@ -93,9 +93,9 @@ orchestrator = SubAgentOrchestrator(config=config, subagent_runner=custom_mock)
 
 **Unit Tests:**
 - None exist. The following are good candidates for unit testing:
-  - `bu-agent/partsource/models.py` - Pure dataclasses and utility functions (`utc_now`, `result_to_dict`)
-  - `bu-agent/partsource/worker_subagent.py` - `load_job()` validation logic, `build_bootstrap_failure()`
-  - `bu-agent/partsource/process_orchestrator.py` - `_sanitize_temp_prefix_fragment()`, `_parse_worker_result()`, `_merge_errors()`, `_trim()`
+  - `bu-agent/proquote/models.py` - Pure dataclasses and utility functions (`utc_now`, `result_to_dict`)
+  - `bu-agent/proquote/worker_subagent.py` - `load_job()` validation logic, `build_bootstrap_failure()`
+  - `bu-agent/proquote/process_orchestrator.py` - `_sanitize_temp_prefix_fragment()`, `_parse_worker_result()`, `_merge_errors()`, `_trim()`
 
 **Integration Tests:**
 - None exist as automated tests. The manual `run_weather_fanout.py` script serves this role informally.
@@ -134,7 +134,7 @@ bu-agent/
 ```python
 # tests/test_models.py
 import pytest
-from partsource.models import SubAgentResult, result_to_dict, utc_now
+from proquote.models import SubAgentResult, result_to_dict, utc_now
 
 def test_result_to_dict_serializes_datetimes_as_iso():
     now = utc_now()
@@ -157,7 +157,7 @@ def test_result_to_dict_serializes_datetimes_as_iso():
 import json
 import pytest
 from pathlib import Path
-from partsource.worker_subagent import load_job
+from proquote.worker_subagent import load_job
 
 def test_load_job_raises_on_missing_keys(tmp_path):
     job_file = tmp_path / "bad.json"
@@ -176,11 +176,11 @@ def test_load_job_defaults_metadata_to_empty_dict(tmp_path):
 ```python
 # tests/test_orchestrator.py
 import pytest
-from partsource.models import OrchestratorConfig, SubAgentJob, SubAgentResult, utc_now
+from proquote.models import OrchestratorConfig, SubAgentJob, SubAgentResult, utc_now
 
 @pytest.mark.asyncio
 async def test_run_jobs_returns_empty_for_no_jobs():
-    from partsource.orchestrator import SubAgentOrchestrator
+    from proquote.orchestrator import SubAgentOrchestrator
     orch = SubAgentOrchestrator(OrchestratorConfig())
     results = await orch.run_jobs([])
     assert results == []

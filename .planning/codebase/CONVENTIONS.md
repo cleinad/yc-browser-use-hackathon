@@ -57,7 +57,7 @@
 
 **Style:**
 - Use `from X import Y` style for specific imports rather than `import X`
-- Use relative imports within the `partsource` package: `from .models import ...`
+- Use relative imports within the `proquote` package: `from .models import ...`
 - Group imports by category with blank lines between groups
 
 **Path Aliases:**
@@ -65,7 +65,7 @@
 
 ## Dataclass Patterns
 
-**Use `@dataclass(slots=True)` for all data models.** See `bu-agent/partsource/models.py`.
+**Use `@dataclass(slots=True)` for all data models.** See `bu-agent/proquote/models.py`.
 
 ```python
 @dataclass(slots=True)
@@ -90,10 +90,10 @@ class SubAgentJob:
 - Catch broad `Exception` with `# noqa: BLE001` at process boundaries
 - Always record errors as strings in a list: `errors.append(f"{type(exc).__name__}: {exc}")`
 - Use `finally` blocks to ensure browser cleanup even on failure
-- Return structured failure results instead of raising -- see `_build_failure_result()` in `bu-agent/partsource/process_orchestrator.py`
+- Return structured failure results instead of raising -- see `_build_failure_result()` in `bu-agent/proquote/process_orchestrator.py`
 - Silently swallow cleanup errors (e.g., `agent.close()` in a bare `except Exception: pass`)
 
-**Example (from `bu-agent/partsource/worker_subagent.py` lines 70-88):**
+**Example (from `bu-agent/proquote/worker_subagent.py` lines 70-88):**
 ```python
 try:
     history = await asyncio.wait_for(
@@ -168,13 +168,13 @@ self._subagent_runner = subagent_runner or BrowserUseSubAgent(...)
 - Docstrings on classes only (brief, one-line): `"""Thin adapter around browser-use Agent."""`
 - No function-level docstrings; function signatures are self-documenting
 - No inline comments except `noqa` directives
-- Module-level docstrings in `__init__.py`: `"""PartSource orchestration package."""`
+- Module-level docstrings in `__init__.py`: `"""ProQuote orchestration package."""`
 
 ## Module Design
 
 **Exports:**
 - Use `__all__` in `__init__.py` to explicitly declare public API
-- See `bu-agent/partsource/__init__.py`
+- See `bu-agent/proquote/__init__.py`
 
 **Package structure:**
 - `models.py` - Pure data types and utility functions (no I/O)

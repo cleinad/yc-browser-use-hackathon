@@ -1,4 +1,4 @@
-# PartSource — Intelligent Parts Procurement Agent
+# Proquote — Intelligent Parts Procurement Agent
 
 ## Problem
 

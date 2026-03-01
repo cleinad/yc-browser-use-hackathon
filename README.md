@@ -7,7 +7,7 @@ source .venv/bin/activate
 # On Windows use `.venv\Scripts\activate`
 ```
 
-## PartSource orchestrator
+## Proquote orchestrator
 
 Run interactively (REPL):
 ```bash
@@ -34,3 +34,9 @@ run with visible browser windows
 cd bu-agent
 ./.venv/bin/python tests/run_weather_fanout.py --mode process --agents 5 --show-browser
 ```
+
+# Backend
+cd bu-agent && .venv/bin/uvicorn server:app --reload --port 8000
+
+# Frontend
+cd frontend && npm run dev

@@ -53,7 +53,7 @@ async def run_job(
     final_result: str | None = None
     success = False
 
-    with tempfile.TemporaryDirectory(prefix=f"partsource-worker-{job['job_id']}-") as user_data_dir:
+    with tempfile.TemporaryDirectory(prefix=f"proquote-worker-{job['job_id']}-") as user_data_dir:
         llm = ChatBrowserUse()
         browser_profile = BrowserProfile(
             headless=headless,

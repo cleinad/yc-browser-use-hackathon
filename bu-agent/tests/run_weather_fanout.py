@@ -15,9 +15,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from partsource.models import OrchestratorConfig, StatusEvent, SubAgentJob, result_to_dict
-from partsource.orchestrator import SubAgentOrchestrator
-from partsource.process_orchestrator import ProcessSubAgentOrchestrator
+from proquote.models import OrchestratorConfig, StatusEvent, SubAgentJob, result_to_dict
+from proquote.orchestrator import SubAgentOrchestrator
+from proquote.process_orchestrator import ProcessSubAgentOrchestrator
 
 CITY_POOL = [
     "New York, NY",

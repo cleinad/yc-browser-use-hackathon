@@ -12,7 +12,7 @@ Only one integration is currently implemented: Browser Use SDK. All other integr
 - Browser Use — Framework for building reliable web agents
   - SDK/Client: `browser-use` Python package (`Agent`, `BrowserProfile`, `ChatBrowserUse`)
   - Auth: `BROWSER_USE_API_KEY` env var
-  - Used in: `bu-agent/partsource/orchestrator.py`, `bu-agent/partsource/worker_subagent.py`
+  - Used in: `bu-agent/proquote/orchestrator.py`, `bu-agent/proquote/worker_subagent.py`
   - Purpose: Spawns headless browser agents to search vendor websites, extract prices, take screenshots
 
 **Email Infrastructure (planned — P0.8):**
@@ -72,7 +72,7 @@ Only one integration is currently implemented: Browser Use SDK. All other integr
 
 **Logs:**
 - Python `print()` statements for status events in backend (`bu-agent/tests/run_weather_fanout.py` line 98-102)
-- StatusEvent dataclass provides structured event logging (`bu-agent/partsource/models.py` lines 7-14)
+- StatusEvent dataclass provides structured event logging (`bu-agent/proquote/models.py` lines 7-14)
 - Event types: `orchestrator_started`, `subagent_started`, `subagent_retrying`, `subagent_completed`, `subagent_failed`, `orchestrator_completed`
 
 ## CI/CD & Deployment

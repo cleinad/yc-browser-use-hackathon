@@ -64,7 +64,7 @@ Scaffold the base Next.js 15 App Router project at the repository root with: Her
 ## Existing Code Insights
 
 ### Reusable Assets
-- None yet — greenfield frontend. The Python backend (`bu-agent/partsource/`) has no frontend assets.
+- None yet — greenfield frontend. The Python backend (`bu-agent/proquote/`) has no frontend assets.
 
 ### Established Patterns
 - Project root is the target for the Next.js app (confirmed in STATE.md decisions)

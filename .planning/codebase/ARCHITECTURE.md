@@ -7,9 +7,9 @@
 **Overall:** Greenfield project -- Python backend exists, frontend does NOT exist yet and must be built from scratch.
 
 **Key Characteristics:**
-- Backend-only codebase today: Python browser-use agent orchestrator in `bu-agent/partsource/`
+- Backend-only codebase today: Python browser-use agent orchestrator in `bu-agent/proquote/`
 - Frontend planned as Next.js app (per MEGAPLAN.md) but no code exists yet
-- Product is "ProcureSwarm" / "PartSource": AI-powered parts procurement via browser automation agents
+- Product is "ProcureSwarm" / "ProQuote": AI-powered parts procurement via browser automation agents
 - MEGAPLAN.md specifies Convex as the database/backend-as-a-service layer (not yet implemented)
 - The existing Python backend handles browser-use agent orchestration only -- it is NOT a web API server yet
 
@@ -17,13 +17,13 @@
 
 **Agent Orchestration Layer:**
 - Purpose: Spawn and manage browser-use sub-agents that search retailer websites in parallel
-- Location: `bu-agent/partsource/`
+- Location: `bu-agent/proquote/`
 - Contains: Orchestrator, process-isolated worker, data models, status event system
 - Key files:
-  - `bu-agent/partsource/models.py` -- Pydantic-free dataclasses: `OrchestratorConfig`, `SubAgentJob`, `SubAgentResult`, `StatusEvent`
-  - `bu-agent/partsource/orchestrator.py` -- `SubAgentOrchestrator` runs jobs in-process with asyncio semaphore
-  - `bu-agent/partsource/process_orchestrator.py` -- `ProcessSubAgentOrchestrator` spawns each agent as a separate Python process for isolation
-  - `bu-agent/partsource/worker_subagent.py` -- CLI entry point for isolated worker processes
+  - `bu-agent/proquote/models.py` -- Pydantic-free dataclasses: `OrchestratorConfig`, `SubAgentJob`, `SubAgentResult`, `StatusEvent`
+  - `bu-agent/proquote/orchestrator.py` -- `SubAgentOrchestrator` runs jobs in-process with asyncio semaphore
+  - `bu-agent/proquote/process_orchestrator.py` -- `ProcessSubAgentOrchestrator` spawns each agent as a separate Python process for isolation
+  - `bu-agent/proquote/worker_subagent.py` -- CLI entry point for isolated worker processes
 - Pattern: Fan-out/fan-in with semaphore-based concurrency control, retry logic, and status event callbacks
 
 **No API server exists.** The `docs/implementation-plan.md` proposes FastAPI endpoints (`POST /quote`, `GET /quote/{id}`, SSE stream) but none are implemented.
@@ -61,30 +61,30 @@
 
 **SubAgentJob:**
 - Purpose: Defines a single browser-use task to execute
-- Location: `bu-agent/partsource/models.py`
+- Location: `bu-agent/proquote/models.py`
 - Fields: `job_id`, `label`, `task` (natural language instruction), `metadata`
 
 **SubAgentResult:**
 - Purpose: Captures outcome of a single agent run
-- Location: `bu-agent/partsource/models.py`
+- Location: `bu-agent/proquote/models.py`
 - Fields: `success`, `final_result`, `errors`, `duration_seconds`, timestamps, metadata
 
 **StatusEvent:**
 - Purpose: Progress notification during orchestration
-- Location: `bu-agent/partsource/models.py`
+- Location: `bu-agent/proquote/models.py`
 - Types: `orchestrator_started`, `subagent_started`, `subagent_retrying`, `subagent_completed`, `subagent_failed`, `orchestrator_completed`
 - Pattern: Callback-based (`StatusHandler` type alias)
 
 **OrchestratorConfig:**
 - Purpose: Tuning knobs for agent execution
-- Location: `bu-agent/partsource/models.py`
+- Location: `bu-agent/proquote/models.py`
 - Fields: `max_subagents` (parallelism cap), `per_agent_timeout_sec`, `max_steps`, `retries`, `use_vision`, `headless`
 
 ## Entry Points
 
 **Worker Process:**
-- Location: `bu-agent/partsource/worker_subagent.py`
-- Triggers: Spawned by `ProcessSubAgentOrchestrator` as `python -m partsource.worker_subagent`
+- Location: `bu-agent/proquote/worker_subagent.py`
+- Triggers: Spawned by `ProcessSubAgentOrchestrator` as `python -m proquote.worker_subagent`
 - Responsibilities: Load job from JSON file, run single browser-use agent, write result to JSON file
 
 **Test Script:**

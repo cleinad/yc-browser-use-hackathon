@@ -23,7 +23,7 @@ class ProcessSubAgentOrchestrator:
         config: OrchestratorConfig | None = None,
         *,
         python_executable: str | None = None,
-        worker_module: str = "partsource.worker_subagent",
+        worker_module: str = "proquote.worker_subagent",
         worker_cwd: Path | None = None,
     ) -> None:
         self._config = config or OrchestratorConfig()
@@ -140,7 +140,7 @@ class ProcessSubAgentOrchestrator:
         started_at = utc_now()
         safe_job_id = self._sanitize_temp_prefix_fragment(job.job_id)
         try:
-            tmp_ctx = tempfile.TemporaryDirectory(prefix=f"partsource-{safe_job_id}-")
+            tmp_ctx = tempfile.TemporaryDirectory(prefix=f"proquote-{safe_job_id}-")
         except Exception as exc:  # noqa: BLE001
             return self._build_failure_result(
                 job=job,

@@ -1,4 +1,4 @@
-"""Interactive CLI for PartSource — run the full orchestration flow."""
+"""Interactive CLI for Proquote — run the full orchestration flow."""
 
 from __future__ import annotations
 
@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 # Load environment before importing anything that needs API keys
 load_dotenv(Path(__file__).parent / ".env")
 
-from partsource.controller import run as run_orchestrator
-from partsource.models import OrchestratorConfig, StatusEvent
-from partsource.schemas import PurchasePlan
+from proquote.controller import run as run_orchestrator
+from proquote.models import OrchestratorConfig, StatusEvent
+from proquote.schemas import PurchasePlan
 
 
 def print_status(event: StatusEvent) -> None:
@@ -92,7 +92,7 @@ async def handle_request(user_text: str) -> None:
 
 async def repl() -> None:
     """Interactive REPL loop."""
-    print("PartSource — Intelligent Parts Procurement", file=sys.stderr)
+    print("Proquote — Intelligent Parts Procurement", file=sys.stderr)
     print('Type a request (or "quit" to exit):\n', file=sys.stderr)
 
     while True:
