@@ -62,8 +62,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Claude
+# Claude / planning
 .claude/
 .planning/
 SPONSORS.md
+SPONSORS.MD
 MEGAPLAN.md
+docs/SPONSORS.MD
+docs/MEGAPLAN.md
+docs/implementation-plan.md
+docs/overview.md
+hero.ts

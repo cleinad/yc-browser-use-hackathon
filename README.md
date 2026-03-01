@@ -39,4 +39,4 @@ cd bu-agent
 cd bu-agent && .venv/bin/uvicorn server:app --reload --port 8000
 
 # Frontend
-cd frontend && npm run dev
+npm install && npm run dev

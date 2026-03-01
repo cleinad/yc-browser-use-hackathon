@@ -51,10 +51,12 @@ async def optimize(
     failed = [r for r in results if not r.success]
 
     if not successful:
-        return PurchasePlan(
-            options=[],
-            notes="All sub-agent searches failed. No results to optimize.",
-        )
+        notes = "All sub-agent searches failed. No results to optimize."
+        if failed:
+            first_errors = failed[0].errors[:2]
+            if first_errors:
+                notes += " First failure: " + "; ".join(first_errors)
+        return PurchasePlan(options=[], notes=notes)
 
     # Build context for the LLM
     results_summary = []
