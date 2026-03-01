@@ -12,7 +12,7 @@
 - [x] **SETUP-01**: Next.js 15 App Router project scaffolded with TypeScript and Tailwind CSS
 - [x] **SETUP-02**: Convex client configured and connected (real-time subscriptions working)
 - [x] **SETUP-03**: HeroUI installed with Tailwind v4 CSS-first plugin (dark theme, indigo primary)
-- [ ] **SETUP-04**: Vercel deployment configured (sponsor)
+- [x] **SETUP-04**: Vercel deployment configured (sponsor)
 
 ### House Dashboard
 
@@ -122,7 +122,7 @@
 | SETUP-01 | Phase 1 | Complete |
 | SETUP-02 | Phase 1 | Complete |
 | SETUP-03 | Phase 1 | Complete |
-| SETUP-04 | Phase 1 | Pending |
+| SETUP-04 | Phase 1 | Complete |
 | DASH-01 | Phase 2 | Pending |
 | DASH-02 | Phase 2 | Pending |
 | DASH-03 | Phase 2 | Pending |
@@ -168,4 +168,4 @@
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 — 01-01 complete: SETUP-01, SETUP-02, SETUP-03 marked complete*
+*Last updated: 2026-02-28 — 01-02 complete: SETUP-04 marked complete*

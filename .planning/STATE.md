@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-28)
 ## Current Position
 
 Phase: 1 of 6 (Project Scaffolding)
-Plan: 1 of 2 in current phase
+Plan: 2 of 2 in current phase
 Status: In progress
-Last activity: 2026-02-28 — Completed 01-01: Next.js + HeroUI + Convex scaffold
+Last activity: 2026-02-28 — Completed 01-02: Vercel deployment config (vercel.json + .vercelignore; awaiting human Vercel dashboard setup)
 
-Progress: [█░░░░░░░░░] 8%
+Progress: [██░░░░░░░░] 17%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 16 min
-- Total execution time: 0.3 hours
+- Total plans completed: 2
+- Average duration: 8.5 min (automated portions)
+- Total execution time: ~0.3 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-project-scaffolding | 1/2 | ~16 min | 16 min |
+| 01-project-scaffolding | 2/2 | ~17 min | 8.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (16 min)
+- Last 5 plans: 01-01 (16 min), 01-02 (~1 min automated + human setup)
 - Trend: -
 
 *Updated after each plan completion*
@@ -48,6 +48,8 @@ Recent decisions affecting current work:
 - [01-01]: ConvexReactClient fallback to placeholder URL during build to prevent static prerender crash when NEXT_PUBLIC_CONVEX_URL is undefined
 - [01-01]: "type": "module" in package.json required to eliminate ES module warning from Tailwind v4 processing hero.ts
 - [01-01]: Convex project named yc-browser-use-hackathon (deployment: earnest-puffin-59.convex.cloud)
+- [01-02]: Do NOT add rootDirectory to vercel.json — set it in Vercel dashboard during project import to avoid config conflict
+- [01-02]: NEXT_PUBLIC_CONVEX_URL must be set in Vercel env vars (Production + Preview + Development) for Convex to connect in production
 
 ### Pending Todos
 
@@ -60,5 +62,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 01-01-PLAN.md — Next.js 15 + HeroUI + Convex scaffold complete; stack verified at localhost:3000
+Stopped at: Completed 01-02-PLAN.md — vercel.json + .vercelignore created and committed (65929ee); awaiting human Vercel dashboard setup (checkpoint:human-verify)
 Resume file: None
