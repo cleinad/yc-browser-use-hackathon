@@ -30,7 +30,7 @@ export function PropertyPicker({ currentPropertyId = null }: PropertyPickerProps
 
   if (properties === undefined) {
     return (
-      <div className="h-8 w-44 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]" />
+      <div className="h-9 w-52 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)]" />
     );
   }
 
@@ -39,20 +39,23 @@ export function PropertyPicker({ currentPropertyId = null }: PropertyPickerProps
   }
 
   return (
-    <label className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] pl-3 pr-2 text-xs text-[var(--fg-muted)]">
-      Property
+    <label className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] pl-3 pr-2 text-xs text-[var(--fg-muted)]">
+      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M3 20h18M5 20V7l7-3v16M19 20V10l-7-3" />
+      </svg>
       <select
         value={selected}
         onChange={(event) => {
           const nextPropertyId = event.target.value as Id<"properties">;
           if (!nextPropertyId) {
+            router.push("/home");
             return;
           }
           router.push(`/properties/${nextPropertyId}/chat`);
         }}
-        className="h-8 min-w-40 bg-transparent text-sm text-[var(--fg-base)] outline-none"
+        className="h-9 min-w-44 bg-transparent text-sm text-[var(--fg-base)] outline-none"
       >
-        <option value="">Select</option>
+        <option value="">Select property</option>
         {properties.map((property) => (
           <option key={property._id} value={property._id}>
             {property.name}

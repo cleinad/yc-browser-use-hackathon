@@ -62,7 +62,7 @@ body {
 body {
   background: var(--bg-base);
   color: var(--fg-base);
-  font-family: Inter, Geist, system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), Inter, system-ui, -apple-system, sans-serif;
   text-rendering: optimizeLegibility;
 }
 

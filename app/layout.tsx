@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
+import { Instrument_Serif, Inter } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 const instrumentSerif = Instrument_Serif({
   weight: "400",
@@ -22,7 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={instrumentSerif.variable} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${instrumentSerif.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -30,7 +40,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">
+      <body className={`${inter.className} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
