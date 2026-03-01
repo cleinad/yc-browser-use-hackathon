@@ -78,3 +78,24 @@ body {
   animation: shimmer 2s ease-in-out infinite;
   background-size: 200% 100%;
 }
+
+.mask-fade-top {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 30%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(111, 162, 135, 0.2); }
+  50% { box-shadow: 0 0 16px rgba(111, 162, 135, 0.4); }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.animate-cursor-blink {
+  animation: cursor-blink 0.8s step-end infinite;
+}

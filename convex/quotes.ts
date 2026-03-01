@@ -9,6 +9,7 @@ import {
   type QueryCtx,
 } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 
 async function requireIdentity(ctx: QueryCtx | MutationCtx) {
   const identity = await ctx.auth.getUserIdentity();
@@ -67,6 +68,18 @@ async function getUserIdFromIdentity(ctx: QueryCtx) {
   return user?._id ?? null;
 }
 
+async function getOwnedProperty(
+  ctx: QueryCtx | MutationCtx,
+  userId: Id<"users">,
+  propertyId: Id<"properties">,
+) {
+  const property = await ctx.db.get(propertyId);
+  if (!property || property.ownerUserId !== userId) {
+    throw new Error("Property not found.");
+  }
+  return property;
+}
+
 function parseStatusPayload(payload: string) {
   try {
     const parsed = JSON.parse(payload) as Record<string, unknown>;
@@ -90,6 +103,7 @@ type TimelineStatus = NonNullable<ReturnType<typeof parseStatusPayload>>;
 
 export const create = mutation({
   args: {
+    propertyId: v.id("properties"),
     inputText: v.string(),
     location: v.optional(v.string()),
     deadlineIso: v.optional(v.string()),
@@ -97,9 +111,14 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const userId = await ensureUserIdFromIdentity(ctx);
     const now = Date.now();
+    const property = await getOwnedProperty(ctx, userId, args.propertyId);
+    if (property.isArchived) {
+      throw new Error("Property is archived.");
+    }
 
     const requestId = await ctx.db.insert("quoteRequests", {
       userId,
+      propertyId: args.propertyId,
       inputText: args.inputText,
       location: args.location,
       deadlineIso: args.deadlineIso,
@@ -116,7 +135,10 @@ export const create = mutation({
 });
 
 export const listMine = query({
-  args: { limit: v.optional(v.number()) },
+  args: {
+    limit: v.optional(v.number()),
+    propertyId: v.optional(v.id("properties")),
+  },
   handler: async (ctx, args) => {
     const userId = await getUserIdFromIdentity(ctx);
     if (!userId) {
@@ -124,6 +146,17 @@ export const listMine = query({
     }
 
     const limit = Math.min(Math.max(args.limit ?? 20, 1), 100);
+
+    if (args.propertyId) {
+      await getOwnedProperty(ctx, userId, args.propertyId);
+      return await ctx.db
+        .query("quoteRequests")
+        .withIndex("by_user_property_createdAt", (q) =>
+          q.eq("userId", userId).eq("propertyId", args.propertyId),
+        )
+        .order("desc")
+        .take(limit);
+    }
 
     return await ctx.db
       .query("quoteRequests")
@@ -134,7 +167,10 @@ export const listMine = query({
 });
 
 export const listMineWithEvents = query({
-  args: { limit: v.optional(v.number()) },
+  args: {
+    limit: v.optional(v.number()),
+    propertyId: v.optional(v.id("properties")),
+  },
   handler: async (ctx, args) => {
     const userId = await getUserIdFromIdentity(ctx);
     if (!userId) {
@@ -142,11 +178,23 @@ export const listMineWithEvents = query({
     }
 
     const limit = Math.min(Math.max(args.limit ?? 20, 1), 100);
-    const requests = await ctx.db
-      .query("quoteRequests")
-      .withIndex("by_user_createdAt", (q) => q.eq("userId", userId))
-      .order("desc")
-      .take(limit);
+    let requests;
+    if (args.propertyId) {
+      await getOwnedProperty(ctx, userId, args.propertyId);
+      requests = await ctx.db
+        .query("quoteRequests")
+        .withIndex("by_user_property_createdAt", (q) =>
+          q.eq("userId", userId).eq("propertyId", args.propertyId),
+        )
+        .order("desc")
+        .take(limit);
+    } else {
+      requests = await ctx.db
+        .query("quoteRequests")
+        .withIndex("by_user_createdAt", (q) => q.eq("userId", userId))
+        .order("desc")
+        .take(limit);
+    }
 
     const timeline = await Promise.all(
       requests.map(async (request) => {

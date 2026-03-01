@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as properties from "../properties.js";
 import type * as quotes from "../quotes.js";
 import type * as users from "../users.js";
 
@@ -18,6 +19,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  properties: typeof properties;
   quotes: typeof quotes;
   users: typeof users;
 }>;

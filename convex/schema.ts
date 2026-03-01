@@ -14,8 +14,20 @@ export default defineSchema({
     .index("by_tokenIdentifier", ["tokenIdentifier"])
     .index("by_subject", ["subject"]),
 
+  properties: defineTable({
+    ownerUserId: v.id("users"),
+    name: v.string(),
+    address: v.optional(v.string()),
+    isArchived: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_owner_createdAt", ["ownerUserId", "createdAt"])
+    .index("by_owner_archived_createdAt", ["ownerUserId", "isArchived", "createdAt"]),
+
   quoteRequests: defineTable({
     userId: v.id("users"),
+    propertyId: v.optional(v.id("properties")),
     inputText: v.string(),
     location: v.optional(v.string()),
     deadlineIso: v.optional(v.string()),
@@ -31,6 +43,7 @@ export default defineSchema({
     finishedAt: v.optional(v.number()),
   })
     .index("by_user_createdAt", ["userId", "createdAt"])
+    .index("by_user_property_createdAt", ["userId", "propertyId", "createdAt"])
     .index("by_status_createdAt", ["status", "createdAt"]),
 
   quoteEvents: defineTable({

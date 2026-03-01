@@ -81,6 +81,26 @@ export function isPurchasePlan(value: unknown): value is PurchasePlan {
   return Array.isArray((value as { options?: unknown }).options);
 }
 
+// --- Orchestrator phase types ---
+
+export type OrchestratorPhase =
+  | "parsing"
+  | "planning"
+  | "searching"
+  | "optimizing"
+  | "complete"
+  | "error";
+
+export interface OrchestratorState {
+  phase: OrchestratorPhase;
+  logLines: string[];
+  parsedParts: string[];
+  totalJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  currentThought: string;
+}
+
 // --- Agent card types ---
 
 export type AgentCardStatus = "searching" | "completed" | "failed" | "retrying";
@@ -92,6 +112,7 @@ export interface AgentCardState {
   status: AgentCardStatus;
   attempt: number;
   message: string | null;
+  startedAt: number | null;
 }
 
 export type CheckoutStrategy = "fastest" | "cheapest";
