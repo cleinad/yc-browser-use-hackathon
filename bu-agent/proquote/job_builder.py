@@ -18,28 +18,38 @@ Option A — Search bar (preferred):
   2. Click on the search bar, type "{query}", and press Enter to submit.
   3. Wait for the search results page to load.
 
-Option B — Category navigation (use if search gives poor results):
-  1. Browse the site's category menus / department links.
-  2. Navigate into the most relevant department or category.
-  3. Use filters or sub-categories to narrow down to the product.
+Option B — Broaden your search (use if the first search gives few or no results):
+  1. Try a shorter or more general version of the query.
+     Example: "cockroach spray" → "insect spray", "MOEN Adler faucet" → "kitchen faucet single handle".
+  2. You may also browse the site's category menus / department links to find
+     the most relevant department and narrow down from there.
 
-After finding results, pick the best matching product for: {query}
-Click into that product's page to get full details.
+PRODUCT SELECTION — flexibility is key:
+- An exact match for "{query}" is ideal, but a close alternative that serves \
+the same purpose is perfectly acceptable.
+- If the exact product is unavailable, out of stock, or not listed, pick the \
+nearest substitute that fulfills the same need (similar function, size, specs).
+- Use your best judgment: a reasonable alternative is always better than \
+returning nothing.
+- Only return null if there is truly nothing on {retailer} that could \
+reasonably serve the same purpose.
+
+Click into the chosen product's page to get full details.
 
 IMPORTANT RULES:
 - Stay ONLY on {retailer}. Do NOT navigate to any other website.
 - Do NOT type the query into the browser URL/address bar. Use the on-page search bar.
-- If you cannot find the product on {retailer}, that is perfectly fine. \
-Return the JSON below with "product_name" set to null.
 - Do NOT try other retailers or search engines. Only use {retailer}.
 
 Extract the following as JSON:
-- product_name: the full product name as listed (or null if not found)
+- product_name: the full product name as listed (or null if truly nothing relevant exists)
 - price: numeric price in dollars (e.g. 12.99) or null
 - availability: in-stock status or availability text, or null
 - delivery_estimate: shipping/delivery estimate{location_clause}, or null
 - product_url: the full URL of the product page, or null
 - image_url: the URL of the main product image (the src attribute of the product's primary image), or null
+- is_exact_match: true if this is the exact product requested, false if it is a substitute/alternative
+- match_notes: brief explanation of why this product was chosen if it is not an exact match (or null if exact)
 
 Return ONLY valid JSON with those keys, nothing else.\
 """

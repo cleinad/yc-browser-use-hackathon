@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from browser_use import Agent, BrowserProfile, ChatBrowserUse
+from browser_use import Agent, Browser, BrowserProfile, ChatBrowserUse
 from dotenv import load_dotenv
 
 from .models import SubAgentResult, result_to_dict, utc_now
@@ -24,6 +24,17 @@ def parse_args() -> argparse.Namespace:
         "--show-browser",
         action="store_true",
         help="Run with visible browser window (default is headless)",
+    )
+    parser.add_argument(
+        "--use-cloud",
+        action="store_true",
+        help="Run on Browser Use Cloud instead of local browser",
+    )
+    parser.add_argument(
+        "--cloud-proxy-country",
+        type=str,
+        default="us",
+        help="Proxy country code for cloud browser (default: us)",
     )
     return parser.parse_args()
 
@@ -47,25 +58,41 @@ async def run_job(
     max_steps: int,
     use_vision: bool,
     headless: bool,
+    use_cloud: bool = False,
+    cloud_proxy_country: str = "us",
 ) -> SubAgentResult:
     started_at = utc_now()
     errors: list[str] = []
     final_result: str | None = None
     success = False
 
-    with tempfile.TemporaryDirectory(prefix=f"proquote-worker-{job['job_id']}-") as user_data_dir:
+    tmp_ctx = tempfile.TemporaryDirectory(prefix=f"proquote-worker-{job['job_id']}-")
+    with tmp_ctx as user_data_dir:
         llm = ChatBrowserUse(model="bu-latest")
-        browser_profile = BrowserProfile(
-            headless=headless,
-            user_data_dir=user_data_dir,
-            keep_alive=False,
-        )
-        agent = Agent(
-            task=str(job["task"]),
-            llm=llm,
-            browser_profile=browser_profile,
-            use_vision=use_vision,
-        )
+
+        if use_cloud:
+            browser = Browser(
+                use_cloud=True,
+                cloud_proxy_country_code=cloud_proxy_country,
+            )
+            agent = Agent(
+                task=str(job["task"]),
+                llm=llm,
+                browser=browser,
+                use_vision=use_vision,
+            )
+        else:
+            browser_profile = BrowserProfile(
+                headless=headless,
+                user_data_dir=user_data_dir,
+                keep_alive=False,
+            )
+            agent = Agent(
+                task=str(job["task"]),
+                llm=llm,
+                browser_profile=browser_profile,
+                use_vision=use_vision,
+            )
 
         try:
             history = await asyncio.wait_for(
@@ -161,6 +188,8 @@ def main() -> int:
                 max_steps=args.max_steps,
                 use_vision=args.use_vision,
                 headless=not args.show_browser,
+                use_cloud=args.use_cloud,
+                cloud_proxy_country=args.cloud_proxy_country,
             )
         )
         write_result(args.output_file, result)
