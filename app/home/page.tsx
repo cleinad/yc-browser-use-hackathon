@@ -41,7 +41,7 @@ function BuildingIcon() {
 
 function MoneyIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M3 6h18v12H3z" />
       <circle cx="12" cy="12" r="3" />
       <path d="M3 10a3 3 0 0 0 3-3M21 10a3 3 0 0 1-3-3M3 14a3 3 0 0 1 3 3M21 14a3 3 0 0 0-3 3" />
@@ -51,7 +51,7 @@ function MoneyIcon() {
 
 function ClockIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 3" />
     </svg>
@@ -60,7 +60,7 @@ function ClockIcon() {
 
 function SparkIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M12 3l1.9 4.7L19 9.6l-4 3.4 1.2 5L12 15.4 7.8 18l1.2-5-4-3.4 5.1-1.9L12 3z" />
     </svg>
   );
@@ -121,8 +121,8 @@ function PropertyFormModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(16,14,12,0.45)] px-4 backdrop-blur-[2px]">
-      <div className="w-full max-w-md rounded-3xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-6 shadow-[0_24px_56px_rgba(0,0,0,0.28)]">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--fg-base)]">
+      <div className="w-full max-w-md rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-6 shadow-[0_24px_56px_rgba(0,0,0,0.28)]">
+        <h2 className="text-lg font-semibold tracking-tight text-[var(--fg-base)]">
           {title}
         </h2>
         <p className="mt-1 text-sm text-[var(--fg-muted)]">
@@ -168,7 +168,7 @@ function PropertyFormModal({
               onChange={(event) => setName(event.target.value)}
               placeholder="Sunset Towers"
               disabled={busy}
-              className="h-10 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 text-sm text-[var(--fg-base)] outline-none focus:border-[var(--fg-muted)] disabled:opacity-60"
+              className="h-9 w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 text-sm text-[var(--fg-base)] outline-none focus:border-[var(--fg-muted)] disabled:opacity-60"
               autoFocus
             />
           </div>
@@ -186,12 +186,12 @@ function PropertyFormModal({
               onChange={(event) => setAddress(event.target.value)}
               placeholder="123 Main St, Austin, TX"
               disabled={busy}
-              className="h-10 w-full rounded-xl border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 text-sm text-[var(--fg-base)] outline-none focus:border-[var(--fg-muted)] disabled:opacity-60"
+              className="h-9 w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-subtle)] px-3 text-sm text-[var(--fg-base)] outline-none focus:border-[var(--fg-muted)] disabled:opacity-60"
             />
           </div>
 
           {error && (
-            <p className="rounded-xl border border-[var(--accent-destructive)] px-3 py-2 text-sm text-[var(--accent-destructive)]">
+            <p className="rounded-lg border border-[var(--accent-destructive)] px-3 py-2 text-sm text-[var(--accent-destructive)]">
               {error}
             </p>
           )}
@@ -201,14 +201,14 @@ function PropertyFormModal({
               type="button"
               onClick={onClose}
               disabled={busy}
-              className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-2 text-sm text-[var(--fg-base)] hover:border-[var(--fg-muted)] disabled:opacity-60"
+              className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3.5 py-1.5 text-sm text-[var(--fg-base)] hover:border-[var(--fg-muted)] disabled:opacity-60"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={busy}
-              className="rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] disabled:opacity-60"
+              className="rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)] disabled:opacity-60"
             >
               {busy ? "Saving..." : submitLabel}
             </button>
@@ -218,6 +218,27 @@ function PropertyFormModal({
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+
+function StatCell({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-[11px] text-[var(--fg-disabled)] leading-none">{label}</span>
+      <span className="mt-1 text-lg font-semibold text-[var(--fg-base)] tabular-nums leading-none">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 
 export default function DashboardPage() {
   const dashboard = useQuery(api.properties.dashboard);
@@ -312,247 +333,210 @@ export default function DashboardPage() {
         </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-12 pt-3 sm:px-8">
-        <section className="relative overflow-hidden rounded-3xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 py-5 sm:px-7 sm:py-6">
-          <div className="pointer-events-none absolute -right-24 -top-20 h-60 w-60 rounded-full bg-[color-mix(in_srgb,var(--accent-amber)_22%,transparent)] blur-3xl" />
-          <div className="pointer-events-none absolute -left-20 bottom-0 h-40 w-40 rounded-full bg-[color-mix(in_srgb,var(--accent-jade)_16%,transparent)] blur-3xl" />
+      <main className="mx-auto w-full max-w-5xl px-6 pb-12 pt-2 sm:px-8">
+        {/* --- Header row --- */}
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-[var(--fg-base)]">
+              Properties
+            </h1>
+            <p className="mt-0.5 text-sm text-[var(--fg-muted)]">
+              Manage locations and track procurement activity.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCreateModalOpen(true)}
+            className="shrink-0 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
+          >
+            New property
+          </button>
+        </div>
 
-          <div className="relative flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-medium text-[var(--fg-disabled)]">
-                Portfolio Concierge
-              </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--fg-base)]">
-                Your Properties
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm text-[var(--fg-muted)]">
-                Coordinate requests by location, track operational momentum, and surface
-                weekly procurement wins across your portfolio.
-              </p>
+        {/* --- Stats bar --- */}
+        <div className="mt-5 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-5 py-4">
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+            <StatCell label="Active" value={metrics?.activeProperties ?? 0} />
+            <StatCell label="Archived" value={metrics?.archivedProperties ?? 0} />
+            <StatCell label="Open requests" value={metrics?.openRequests ?? 0} />
+            <StatCell label="Last 7d" value={metrics?.weeklyRequests ?? 0} />
+
+            <div className="hidden sm:block w-px h-8 bg-[var(--border-default)]" />
+
+            <div className="flex flex-col">
+              <span className="flex items-center gap-1 text-[11px] text-[var(--accent-jade)] leading-none">
+                <MoneyIcon />
+                Savings (7d)
+              </span>
+              <span className="mt-1 text-lg font-semibold text-[var(--fg-base)] tabular-nums leading-none">
+                {formatCurrency(metrics?.weeklyPotentialSavings ?? 0)}
+              </span>
             </div>
 
+            <div className="flex flex-col">
+              <span className="flex items-center gap-1 text-[11px] text-[var(--accent-amber)] leading-none">
+                <ClockIcon />
+                Time saved (7d)
+              </span>
+              <span className="mt-1 text-lg font-semibold text-[var(--fg-base)] tabular-nums leading-none">
+                {formatDurationMinutes(metrics?.weeklyEstimatedTimeSavedMinutes ?? 0)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* --- Property list --- */}
+        <div className="mt-6">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-[var(--fg-base)]">
+              {visibleProperties.length} {visibleProperties.length === 1 ? "property" : "properties"}
+            </h2>
             <button
               type="button"
-              onClick={() => setCreateModalOpen(true)}
-              className="rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
+              onClick={() => setShowArchived((prev) => !prev)}
+              className="text-xs text-[var(--fg-muted)] underline-offset-2 hover:text-[var(--fg-base)] hover:underline"
             >
-              New property
+              {showArchived ? "Hide archived" : "Show archived"}
             </button>
           </div>
 
-          <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] p-4">
-              <p className="text-xs text-[var(--fg-disabled)]">
-                Active
-              </p>
-              <p className="mt-1 text-2xl text-[var(--fg-base)]">{metrics?.activeProperties ?? 0}</p>
-            </div>
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] p-4">
-              <p className="text-xs text-[var(--fg-disabled)]">
-                Archived
-              </p>
-              <p className="mt-1 text-2xl text-[var(--fg-base)]">{metrics?.archivedProperties ?? 0}</p>
-            </div>
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] p-4">
-              <p className="text-xs text-[var(--fg-disabled)]">
-                Open requests
-              </p>
-              <p className="mt-1 text-2xl text-[var(--fg-base)]">{metrics?.openRequests ?? 0}</p>
-            </div>
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_72%,transparent)] p-4">
-              <p className="text-xs text-[var(--fg-disabled)]">
-                Last 7d requests
-              </p>
-              <p className="mt-1 text-2xl text-[var(--fg-base)]">{metrics?.weeklyRequests ?? 0}</p>
-            </div>
-          </div>
+          {pageError && (
+            <p className="mb-3 rounded-lg border border-[var(--accent-destructive)] px-3 py-2 text-sm text-[var(--accent-destructive)]">
+              {pageError}
+            </p>
+          )}
 
-          <div className="relative mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_68%,transparent)] p-4">
-              <div className="flex items-center gap-2 text-[var(--accent-jade)]">
-                <MoneyIcon />
-                <p className="text-xs">Potential savings (7d)</p>
-              </div>
-              <p className="mt-2 text-3xl font-semibold text-[var(--fg-base)]">
-                {formatCurrency(metrics?.weeklyPotentialSavings ?? 0)}
-              </p>
-              <p className="mt-1 text-xs text-[var(--fg-muted)]">
-                Compared against the next-best quote option per completed request.
-              </p>
+          {dashboard === undefined ? (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="h-36 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)]"
+                />
+              ))}
             </div>
-
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_68%,transparent)] p-4">
-              <div className="flex items-center gap-2 text-[var(--accent-amber)]">
-                <ClockIcon />
-                <p className="text-xs">Estimated time saved (7d)</p>
-              </div>
-              <p className="mt-2 text-3xl font-semibold text-[var(--fg-base)]">
-                {formatDurationMinutes(metrics?.weeklyEstimatedTimeSavedMinutes ?? 0)}
+          ) : visibleProperties.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--bg-surface)] px-6 py-10 text-center">
+              <p className="text-sm text-[var(--fg-muted)]">
+                {showArchived
+                  ? "No properties yet."
+                  : "No active properties. Create one to start."}
               </p>
-              <p className="mt-1 text-xs text-[var(--fg-muted)]">
-                Manual sourcing estimate minus automated run time plus review buffer.
-              </p>
-            </div>
-          </div>
-
-          <details className="relative mt-4 rounded-xl border border-[var(--border-default)] bg-[color-mix(in_srgb,var(--bg-base)_60%,transparent)] px-3 py-2 text-xs text-[var(--fg-muted)]">
-            <summary className="cursor-pointer select-none text-[var(--fg-base)]">
-              How these weekly stats are calculated
-            </summary>
-            <div className="mt-2 space-y-1 leading-relaxed">
-              <p>
-                Potential savings per request = max(0, next-best quote total - best quote
-                total), then summed for completed requests in the last 7 days.
-              </p>
-              <p>
-                Estimated time saved per request = max(0, manual estimate - automated
-                runtime estimate), where manual estimate = 8 + (3 x line items) + (2 x
-                retailers compared) minutes.
-              </p>
-            </div>
-          </details>
-        </section>
-
-        <section className="mt-6">
-          <div className="w-full">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-medium text-[var(--fg-base)]">Property list</h2>
               <button
                 type="button"
-                onClick={() => setShowArchived((prev) => !prev)}
-                className="text-xs text-[var(--fg-muted)] underline-offset-2 hover:text-[var(--fg-base)] hover:underline"
+                onClick={() => setCreateModalOpen(true)}
+                className="mt-3 rounded-lg bg-[var(--accent-primary)] px-3.5 py-1.5 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
               >
-                {showArchived ? "Hide archived" : "Show archived"}
+                Create property
               </button>
             </div>
-
-            {pageError && (
-              <p className="mb-3 rounded-xl border border-[var(--accent-destructive)] px-3 py-2 text-sm text-[var(--accent-destructive)]">
-                {pageError}
-              </p>
-            )}
-
-            {dashboard === undefined ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="h-44 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)]"
-                  />
-                ))}
-              </div>
-            ) : visibleProperties.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-[var(--border-default)] bg-[var(--bg-surface)] px-6 py-12 text-center">
-                <p className="text-base text-[var(--fg-base)]">
-                  {showArchived
-                    ? "No properties yet."
-                    : "No active properties. Create one to start making part requests."}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setCreateModalOpen(true)}
-                  className="mt-4 rounded-xl bg-[var(--accent-primary)] px-4 py-2 text-sm font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
+          ) : (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {visibleProperties.map((property) => (
+                <article
+                  key={property._id}
+                  className="group relative rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 transition hover:border-[var(--fg-disabled)]"
                 >
-                  Create property
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {visibleProperties.map((property) => (
-                  <article
-                    key={property._id}
-                    className="group relative overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 transition hover:-translate-y-0.5 hover:border-[var(--fg-muted)]"
-                  >
-                    <div
-                      className={`absolute inset-x-0 top-0 h-[2px] ${
-                        property.isArchived
-                          ? "bg-[var(--fg-disabled)]"
-                          : "bg-[color-mix(in_srgb,var(--accent-jade)_70%,var(--accent-amber)_30%)]"
-                      }`}
-                    />
+                  {/* Top accent bar */}
+                  <div
+                    className={`absolute inset-x-0 top-0 h-px ${
+                      property.isArchived
+                        ? "bg-[var(--fg-disabled)]"
+                        : "bg-[var(--accent-jade)]"
+                    }`}
+                  />
 
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <BuildingIcon />
-                          <h3 className="text-lg font-medium text-[var(--fg-base)]">
-                            {property.name}
-                          </h3>
-                        </div>
-                        <p className="mt-1 text-sm text-[var(--fg-muted)]">
-                          {property.address ?? "Address not set"}
-                        </p>
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[var(--fg-muted)]"><BuildingIcon /></span>
+                        <h3 className="text-sm font-medium text-[var(--fg-base)] truncate">
+                          {property.name}
+                        </h3>
                       </div>
-                      <span className="rounded-full border border-[var(--border-default)] px-2 py-0.5 text-xs text-[var(--fg-muted)]">
-                        {property.isArchived ? "Archived" : "Active"}
+                      <p className="mt-0.5 text-xs text-[var(--fg-disabled)] truncate">
+                        {property.address ?? "No address"}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        property.isArchived
+                          ? "bg-[var(--bg-subtle)] text-[var(--fg-disabled)]"
+                          : "bg-[color-mix(in_srgb,var(--accent-jade)_12%,transparent)] text-[var(--accent-jade)]"
+                      }`}
+                    >
+                      {property.isArchived ? "Archived" : "Active"}
+                    </span>
+                  </div>
+
+                  {/* Inline stats */}
+                  <div className="mt-3 flex items-center gap-4 text-xs">
+                    <div>
+                      <span className="text-[var(--fg-disabled)]">Open </span>
+                      <span className="font-medium text-[var(--fg-base)] tabular-nums">
+                        {property.openRequestCount}
                       </span>
                     </div>
-
-                    <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-                      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] px-2 py-2">
-                        <p className="text-[var(--fg-disabled)]">Open</p>
-                        <p className="mt-1 text-base text-[var(--fg-base)]">
-                          {property.openRequestCount}
-                        </p>
-                      </div>
-                      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] px-2 py-2">
-                        <p className="text-[var(--fg-disabled)]">Last 7d</p>
-                        <p className="mt-1 text-base text-[var(--fg-base)]">
-                          {property.weeklyRequestCount}
-                        </p>
-                      </div>
-                      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] px-2 py-2">
-                        <p className="text-[var(--fg-disabled)]">Lifetime</p>
-                        <p className="mt-1 text-base text-[var(--fg-base)]">
-                          {property.totalRequestCount}
-                        </p>
-                      </div>
+                    <div>
+                      <span className="text-[var(--fg-disabled)]">7d </span>
+                      <span className="font-medium text-[var(--fg-base)] tabular-nums">
+                        {property.weeklyRequestCount}
+                      </span>
                     </div>
-
-                    <div className="mt-3 flex items-center gap-1 text-xs text-[var(--fg-muted)]">
-                      <SparkIcon />
-                      <span>Last activity: {formatRelativeTime(property.lastRequestAt)}</span>
+                    <div>
+                      <span className="text-[var(--fg-disabled)]">Total </span>
+                      <span className="font-medium text-[var(--fg-base)] tabular-nums">
+                        {property.totalRequestCount}
+                      </span>
                     </div>
+                  </div>
 
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      {!property.isArchived && (
-                        <Link
-                          href={`/properties/${property._id}/chat`}
-                          className="rounded-xl bg-[var(--accent-primary)] px-3 py-1.5 text-xs font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
-                        >
-                          Open chat
-                        </Link>
-                      )}
+                  {/* Last activity */}
+                  <div className="mt-2 flex items-center gap-1 text-[11px] text-[var(--fg-disabled)]">
+                    <SparkIcon />
+                    <span>{formatRelativeTime(property.lastRequestAt)}</span>
+                  </div>
 
-                      <button
-                        type="button"
-                        onClick={() => setEditingPropertyId(property._id)}
-                        className="rounded-xl border border-[var(--border-default)] px-3 py-1.5 text-xs text-[var(--fg-base)] hover:border-[var(--fg-muted)]"
+                  {/* Actions */}
+                  <div className="mt-3 flex items-center gap-1.5 border-t border-[var(--border-default)] pt-3">
+                    {!property.isArchived && (
+                      <Link
+                        href={`/properties/${property._id}/chat`}
+                        className="rounded-lg bg-[var(--accent-primary)] px-3 py-1 text-xs font-medium text-[var(--bg-base)] hover:bg-[var(--accent-primary-hover)]"
                       >
-                        Edit
-                      </button>
+                        Open chat
+                      </Link>
+                    )}
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void toggleArchive(property);
-                        }}
-                        disabled={archivingPropertyId === property._id}
-                        className="rounded-xl border border-[var(--border-default)] px-3 py-1.5 text-xs text-[var(--fg-base)] hover:border-[var(--fg-muted)] disabled:opacity-60"
-                      >
-                        {archivingPropertyId === property._id
-                          ? "Saving..."
-                          : property.isArchived
-                            ? "Unarchive"
-                            : "Archive"}
-                      </button>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+                    <button
+                      type="button"
+                      onClick={() => setEditingPropertyId(property._id)}
+                      className="rounded-lg border border-[var(--border-default)] px-2.5 py-1 text-xs text-[var(--fg-muted)] hover:text-[var(--fg-base)] hover:border-[var(--fg-muted)]"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void toggleArchive(property);
+                      }}
+                      disabled={archivingPropertyId === property._id}
+                      className="rounded-lg border border-[var(--border-default)] px-2.5 py-1 text-xs text-[var(--fg-muted)] hover:text-[var(--fg-base)] hover:border-[var(--fg-muted)] disabled:opacity-60"
+                    >
+                      {archivingPropertyId === property._id
+                        ? "..."
+                        : property.isArchived
+                          ? "Unarchive"
+                          : "Archive"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
 
       {createModalOpen && (
