@@ -1,0 +1,7 @@
+bu-agent/
+docs/
+MEGAPLAN.md
+SPONSORS.MD
+*.py
+*.sh
+requirements*.txt
