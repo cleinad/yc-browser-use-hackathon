@@ -115,7 +115,7 @@
 
 ## Traceability
 
-*Populated during roadmap creation.*
+*Populated by ROADMAP.md creation — 2026-02-28. All 40 v1 requirements mapped.*
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -168,4 +168,4 @@
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition from MEGAPLAN.md*
+*Last updated: 2026-02-28 — ROADMAP.md created, traceability confirmed complete*
