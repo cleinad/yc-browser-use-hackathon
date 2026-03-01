@@ -1,5 +1,13 @@
 # yc-browser-use-hackathon
 
+## Architecture
+
+- Frontend (`app/`) handles UI and Clerk auth.
+- Convex (`convex/`) is backend + database.
+- `bu-agent/` is browser-use orchestration only.
+
+See [docs/CONTEXT.md](docs/CONTEXT.md) for the definitive split and request flow.
+
 setup venv
 ```bash
 uv venv --python 3.12
