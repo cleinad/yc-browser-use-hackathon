@@ -29,6 +29,7 @@ export default defineSchema({
     userId: v.id("users"),
     propertyId: v.optional(v.id("properties")),
     inputText: v.string(),
+    displayText: v.optional(v.string()),
     location: v.optional(v.string()),
     deadlineIso: v.optional(v.string()),
     status: v.union(
