@@ -56,6 +56,9 @@ export interface AgentMessage {
   plan: PurchasePlan | null;
   error: string | null;
   done: boolean;
+  requestId?: string;
+  decision?: OrderDecision;
+  acceptedOptionRank?: number | null;
 }
 
 export interface UserMessage {
@@ -113,6 +116,15 @@ export interface AgentCardState {
   attempt: number;
   message: string | null;
   startedAt: number | null;
+}
+
+export type OrderDecision = "pending" | "accepted" | "rejected";
+
+export type RecommendationLabel = "best" | "cheapest" | "fastest";
+
+export interface LabeledPlanOption extends PlanOption {
+  label: RecommendationLabel;
+  labelDisplay: string;
 }
 
 export type CheckoutStrategy = "fastest" | "cheapest";

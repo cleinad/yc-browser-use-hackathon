@@ -240,6 +240,42 @@ function StatCell({
 
 /* -------------------------------------------------------------------------- */
 
+function DashboardDecisionBadge({ status, decision }: { status: string; decision: string }) {
+  if (status === "queued" || status === "running") {
+    return (
+      <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[color-mix(in_srgb,var(--accent-amber)_12%,transparent)] text-[var(--accent-amber)]">
+        In Progress
+      </span>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[color-mix(in_srgb,var(--accent-destructive)_12%,transparent)] text-[var(--accent-destructive)]">
+        Failed
+      </span>
+    );
+  }
+  if (decision === "accepted") {
+    return (
+      <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[color-mix(in_srgb,var(--accent-jade)_12%,transparent)] text-[var(--accent-jade)]">
+        Accepted
+      </span>
+    );
+  }
+  if (decision === "rejected") {
+    return (
+      <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[color-mix(in_srgb,var(--accent-destructive)_8%,transparent)] text-[var(--fg-muted)]">
+        Rejected
+      </span>
+    );
+  }
+  return (
+    <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-[var(--bg-subtle)] text-[var(--fg-muted)]">
+      Pending
+    </span>
+  );
+}
+
 export default function DashboardPage() {
   const dashboard = useQuery(api.properties.dashboard);
   const createProperty = useMutation(api.properties.create);
@@ -537,6 +573,48 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
+
+        {/* --- Recent Orders --- */}
+        {(dashboard?.recentActivity ?? []).length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-3 text-sm font-medium text-[var(--fg-base)]">
+              Recent Orders
+            </h2>
+            <div className="space-y-2">
+              {(
+                dashboard?.recentActivity as Array<{
+                  requestId: string;
+                  propertyId: string;
+                  propertyName: string;
+                  status: string;
+                  inputText: string;
+                  createdAt: number;
+                  decision: string;
+                  acceptedOptionRank: number | null;
+                }>
+              )?.map((activity) => (
+                <Link
+                  key={activity.requestId}
+                  href={`/properties/${activity.propertyId}/chat`}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3 hover:border-[var(--fg-disabled)] hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] transition"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-[var(--fg-base)] truncate">
+                      {activity.inputText}
+                    </p>
+                    <p className="text-xs text-[var(--fg-disabled)] mt-0.5">
+                      {activity.propertyName} &middot; {formatRelativeTime(activity.createdAt)}
+                    </p>
+                  </div>
+                  <DashboardDecisionBadge
+                    status={activity.status}
+                    decision={activity.decision}
+                  />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {createModalOpen && (

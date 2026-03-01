@@ -250,6 +250,8 @@ export const dashboard = query({
       status: "queued" | "running" | "succeeded" | "failed";
       inputText: string;
       createdAt: number;
+      decision: "pending" | "accepted" | "rejected";
+      acceptedOptionRank: number | null;
     }> = [];
 
     let totalRequests = 0;
@@ -292,6 +294,8 @@ export const dashboard = query({
           status: request.status,
           inputText: request.inputText,
           createdAt: request.createdAt,
+          decision: request.decision ?? "pending",
+          acceptedOptionRank: request.acceptedOptionRank ?? null,
         });
       }
     }
