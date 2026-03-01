@@ -20,6 +20,7 @@ dist/
 .venv/
 venv/
 env/
+bu-agent/.venv/
 
 # Local environment files
 .env
@@ -68,11 +69,17 @@ yarn-error.log*
 SPONSORS.md
 SPONSORS.MD
 MEGAPLAN.md
-docs/SPONSORS.MD
-docs/MEGAPLAN.md
-docs/implementation-plan.md
-docs/overview.md
 hero.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# Test output
+*.tmp

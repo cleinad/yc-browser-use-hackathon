@@ -32,6 +32,7 @@ Return a JSON object with:
     - "availability": availability string or null
     - "delivery_estimate": delivery estimate or null
     - "product_url": URL or null
+    - "image_url": product image URL or null
   - "estimated_total": total cost number or null
   - "delivery_summary": overall delivery estimate
   - "tradeoffs": why you might or might not pick this plan

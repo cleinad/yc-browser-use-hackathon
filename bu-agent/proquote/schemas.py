@@ -35,6 +35,7 @@ class LineItem(BaseModel):
     availability: str | None = None
     delivery_estimate: str | None = None
     product_url: str | None = None
+    image_url: str | None = None
     retailer: str | None = None
 
 
