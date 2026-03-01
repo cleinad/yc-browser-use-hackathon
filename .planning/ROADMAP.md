@@ -10,7 +10,7 @@ Six phases deliver the complete frontend for ProcureSwarm: a hackathon-ready, ju
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Project Scaffolding** - Next.js 15 + Convex + shadcn/ui wired up and deployed to Vercel
+- [ ] **Phase 1: Project Scaffolding** - Next.js 15 + Convex + HeroUI wired up and deployed to Vercel
 - [ ] **Phase 2: House Dashboard + House Detail** - Full house grid and per-house timeline with Convex real-time subscriptions
 - [ ] **Phase 3: Problem Intake + BOM Display** - Ticket creation form, triage card, Fix Pack list, and swarm launch button
 - [ ] **Phase 4: Live Swarm Panel** - Real-time per-vendor progress grid updated via Convex subscriptions
@@ -20,19 +20,19 @@ Six phases deliver the complete frontend for ProcureSwarm: a hackathon-ready, ju
 ## Phase Details
 
 ### Phase 1: Project Scaffolding
-**Goal**: A runnable Next.js 15 app with Convex connected, shadcn/ui available, and deployed to Vercel — ready for feature work
+**Goal**: A runnable Next.js 15 app with Convex connected, HeroUI available (dark mode only, indigo/blue primary), and deployed to Vercel — ready for feature work
 **Depends on**: Nothing (first phase)
 **Requirements**: SETUP-01, SETUP-02, SETUP-03, SETUP-04
 **Success Criteria** (what must be TRUE):
   1. `npm run dev` starts the app with no errors; the root route renders without crashing
   2. A Convex `useQuery` call in a page component returns data (or empty array) from the Convex dev deployment — confirming the client is wired up
-  3. A shadcn/ui Button component renders correctly on a test page, confirming the component library is installed
+  3. A HeroUI Button component renders correctly on a verification page with indigo primary color, confirming HeroUI is installed and styled
   4. Pushing to main auto-deploys to Vercel and the live URL is accessible
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: Scaffold Next.js 15 App Router project with TypeScript and Tailwind, configure Convex client, install and init shadcn/ui
-- [ ] 01-02: Configure Vercel deployment and connect to git repo; verify CI deploys cleanly
+- [ ] 01-01-PLAN.md — Scaffold Next.js 15 + HeroUI (Tailwind v4) + Convex: bootstrap project, configure dark theme, wire providers, init Convex with houses schema, build verification page
+- [ ] 01-02-PLAN.md — Configure Vercel deployment: add vercel.json + .vercelignore, connect GitHub repo, set NEXT_PUBLIC_CONVEX_URL in Vercel dashboard, verify production URL
 
 ### Phase 2: House Dashboard + House Detail
 **Goal**: Users can navigate a grid of house cards and drill into a house to see its full event timeline and open tickets — all updating live
@@ -124,7 +124,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Project Scaffolding | 0/2 | Not started | - |
+| 1. Project Scaffolding | 0/2 | Planned | - |
 | 2. House Dashboard + House Detail | 0/2 | Not started | - |
 | 3. Problem Intake + BOM Display | 0/3 | Not started | - |
 | 4. Live Swarm Panel | 0/2 | Not started | - |
