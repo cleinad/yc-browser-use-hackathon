@@ -1,52 +1,46 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY = "proquote-theme";
 
-export type Theme = "light" | "dark";
+type Theme = "light" | "dark";
 
-/** Reads stored theme from localStorage, or null if not set (use system). */
-function getStoredTheme(): Theme | null {
-  if (typeof window === "undefined") return null;
+function resolveTheme(): Theme {
+  if (typeof window === "undefined") return "dark";
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-  return null;
-}
-
-/** Applies theme class to document and persists to localStorage. */
-function applyTheme(theme: Theme | null) {
-  const root = document.documentElement;
-  root.classList.remove("light", "dark");
-  if (theme) {
-    root.classList.add(theme);
-    localStorage.setItem(STORAGE_KEY, theme);
-  } else {
-    // Use system preference when no stored preference
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    root.classList.add(prefersDark ? "dark" : "light");
-  }
-}
-
-/** Resolves effective theme: stored preference or system. */
-function getEffectiveTheme(): Theme {
-  const stored = getStoredTheme();
-  if (stored) return stored;
-  if (typeof window === "undefined") return "light";
-  // Sync with class applied by layout script (no stored pref = system)
-  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => getEffectiveTheme());
+  const [theme, setTheme] = useState<Theme>("dark");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const resolved = resolveTheme();
+    setTheme(resolved);
+    document.documentElement.setAttribute("data-theme", resolved);
+    setMounted(true);
+  }, []);
 
   const toggle = useCallback(() => {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    applyTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem(STORAGE_KEY, next);
     setTheme(next);
   }, [theme]);
 
   const isDark = theme === "dark";
+
+  // Avoid hydration mismatch — render an inert placeholder until mounted
+  if (!mounted) {
+    return (
+      <div className="h-8 w-8 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]" />
+    );
+  }
 
   return (
     <button
@@ -54,29 +48,13 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--fg-muted)] transition hover:border-[var(--fg-muted)] hover:text-[var(--fg-base)]"
+      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--fg-muted)] transition hover:border-[var(--fg-muted)] hover:text-[var(--fg-base)]"
     >
-      {/* Sun icon for light mode, moon for dark mode */}
       {isDark ? (
+        /* Sun — shown in dark mode, means "switch to light" */
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-        >
-          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -86,14 +64,22 @@ export function ThemeToggle() {
           aria-hidden
         >
           <circle cx="12" cy="12" r="4" />
-          <path d="M12 2v2" />
-          <path d="M12 20v2" />
-          <path d="m4.93 4.93 1.41 1.41" />
-          <path d="m17.66 17.66 1.41 1.41" />
-          <path d="M2 12h2" />
-          <path d="M20 12h2" />
-          <path d="m6.34 17.66-1.41 1.41" />
-          <path d="m19.07 4.93-1.41 1.41" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+        </svg>
+      ) : (
+        /* Moon — shown in light mode, means "switch to dark" */
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
         </svg>
       )}
     </button>
