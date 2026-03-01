@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import type { AgentEventEntry, AgentCardState } from "../types";
 import { parseJobLabel } from "../types";
 import AgentBrowserCard from "./AgentBrowserCard";
 
 interface AgentCardGridProps {
   events: AgentEventEntry[];
+  cardOpacity?: number;
+  cardScale?: number;
 }
 
 function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
@@ -32,6 +34,7 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
           status: "searching",
           attempt: event.attempt ?? 1,
           message: event.message,
+          startedAt: Date.now(),
         });
         break;
       case "subagent_retrying":
@@ -41,6 +44,7 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
             retailer,
             searchQuery: query,
             message: null,
+            startedAt: null,
           }),
           status: "retrying",
           attempt: event.attempt ?? (existing?.attempt ?? 1) + 1,
@@ -54,6 +58,7 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
             retailer,
             searchQuery: query,
             attempt: 1,
+            startedAt: null,
           }),
           status: "completed",
           message: event.message,
@@ -66,6 +71,7 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
             retailer,
             searchQuery: query,
             attempt: 1,
+            startedAt: null,
           }),
           status: "failed",
           message: event.message,
@@ -77,18 +83,41 @@ function buildCardStates(events: AgentEventEntry[]): AgentCardState[] {
   return Array.from(map.values());
 }
 
-export default function AgentCardGrid({ events }: AgentCardGridProps) {
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+export default function AgentCardGrid({
+  events,
+  cardOpacity = 1,
+  cardScale = 1,
+}: AgentCardGridProps) {
   const cards = useMemo(() => buildCardStates(events), [events]);
 
   if (cards.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      style={{
+        opacity: cardOpacity,
+        scale: cardScale,
+        transition: "opacity 0.4s ease, transform 0.4s ease",
+      }}
+      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+    >
       <AnimatePresence mode="popLayout">
-        {cards.map((card) => (
-          <AgentBrowserCard key={card.jobId} card={card} />
+        {cards.map((card, index) => (
+          <AgentBrowserCard key={card.jobId} card={card} index={index} />
         ))}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

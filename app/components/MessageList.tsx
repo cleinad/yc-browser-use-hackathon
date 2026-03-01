@@ -1,15 +1,120 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import type { ChatMessage } from "../types";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import type { ChatMessage, AgentMessage } from "../types";
 import AgentCardGrid from "./AgentCardGrid";
+import OrchestratorThinkingBanner from "./OrchestratorThinkingBanner";
+import { useOrchestratorState } from "./hooks/useOrchestratorState";
+import { useResultTransition } from "./hooks/useResultTransition";
 
 interface MessageListProps {
   messages: ChatMessage[];
   onOpenPanel?: () => void;
 }
 
-export default function MessageList({ messages, onOpenPanel }: MessageListProps) {
+function AgentMessageBlock({
+  msg,
+  onOpenPanel,
+}: {
+  msg: AgentMessage;
+  onOpenPanel?: () => void;
+}) {
+  const orchestratorState = useOrchestratorState(
+    msg.events,
+    msg.done,
+    !!msg.plan,
+    !!msg.error
+  );
+
+  const transition = useResultTransition(msg.done, !!msg.plan);
+
+  const [startTime] = useState(() => Date.now());
+
+  return (
+    <div className="max-w-full space-y-3">
+      {/* Orchestrator banner: show while not done */}
+      {!msg.done && (
+        <OrchestratorThinkingBanner
+          state={orchestratorState}
+          startTime={startTime}
+        />
+      )}
+
+      {/* Show completed banner briefly */}
+      {msg.done && orchestratorState.phase === "complete" && (
+        <OrchestratorThinkingBanner
+          state={orchestratorState}
+          startTime={startTime}
+        />
+      )}
+
+      {/* Agent card grid with transition opacity/scale */}
+      <AgentCardGrid
+        events={msg.events}
+        cardOpacity={transition.cardOpacity}
+        cardScale={transition.cardScale}
+      />
+
+      {msg.error && (
+        <div className="rounded-lg border border-[var(--accent-destructive)] bg-[var(--bg-surface)] p-3 text-sm text-[var(--accent-destructive)]">
+          {msg.error}
+        </div>
+      )}
+
+      {transition.showButton && msg.plan && (
+        <motion.button
+          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          onClick={onOpenPanel}
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent-jade)] bg-[rgba(111,162,135,0.1)] px-4 py-2.5 text-sm font-medium text-[var(--accent-jade)] hover:bg-[rgba(111,162,135,0.2)] transition"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+          View Purchase Plan
+        </motion.button>
+      )}
+
+      {/* Non-transition: show button immediately if already done on mount */}
+      {!transition.showButton && msg.done && msg.plan && (
+        <button
+          onClick={onOpenPanel}
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent-jade)] bg-[rgba(111,162,135,0.1)] px-4 py-2.5 text-sm font-medium text-[var(--accent-jade)] hover:bg-[rgba(111,162,135,0.2)] transition"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+          View Purchase Plan
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function MessageList({
+  messages,
+  onOpenPanel,
+}: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,45 +144,12 @@ export default function MessageList({ messages, onOpenPanel }: MessageListProps)
           );
         }
 
-        // Agent message
         return (
-          <div key={i} className="max-w-full space-y-3">
-            <AgentCardGrid events={msg.events} />
-
-            {msg.error && (
-              <div className="rounded-lg border border-[var(--accent-destructive)] bg-[var(--bg-surface)] p-3 text-sm text-[var(--accent-destructive)]">
-                {msg.error}
-              </div>
-            )}
-
-            {msg.plan && (
-              <button
-                onClick={onOpenPanel}
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--accent-jade)] bg-[rgba(111,162,135,0.1)] px-4 py-2.5 text-sm font-medium text-[var(--accent-jade)] hover:bg-[rgba(111,162,135,0.2)] transition"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-                View Purchase Plan
-              </button>
-            )}
-
-            {!msg.done && !msg.error && (
-              <div className="flex items-center gap-2 text-xs text-[var(--fg-muted)]">
-                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[var(--fg-muted)]" />
-                Searching...
-              </div>
-            )}
-          </div>
+          <AgentMessageBlock
+            key={i}
+            msg={msg}
+            onOpenPanel={onOpenPanel}
+          />
         );
       })}
       <div ref={bottomRef} />
