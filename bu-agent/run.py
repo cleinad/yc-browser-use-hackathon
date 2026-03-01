@@ -78,7 +78,7 @@ async def handle_request(user_text: str) -> None:
         per_agent_timeout_sec=180,
         max_steps=40,
         retries=1,
-        headless=True,
+        headless=False,
     )
 
     plan = await run_orchestrator(
