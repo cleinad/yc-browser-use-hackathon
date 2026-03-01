@@ -39,4 +39,16 @@ cd bu-agent
 cd bu-agent && .venv/bin/uvicorn server:app --reload --port 8000
 
 # Frontend
-npm install && npm run dev
+Run these in **two separate terminals** when developing:
+
+1. **Convex dev server** (keep running) — syncs Convex functions and generates API types:
+   ```bash
+   npx convex dev
+   ```
+
+2. **Next.js dev server**:
+   ```bash
+   npm install && npm run dev
+   ```
+
+The Convex dev server must stay running for auth, database, and Convex functions to work.
